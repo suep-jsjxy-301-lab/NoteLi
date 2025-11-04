@@ -1,0 +1,136 @@
+########## Python / Poetry / pytest ##########
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.poetry/
+poetry.lock
+.pytest_cache/
+.coverage
+.tox/
+.nox/
+.hypothesis/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.cython_debug/
+jupyter_notebook_config.py
+profile_default/
+ipython_config.py
+.ipynb_checkpoints
+
+########## Node / pnpm / npm / yarn ##########
+node_modules/
+.pnp
+.pnp.js
+.yarn/
+yarn-error.log*
+pnpm-debug.log*
+npm-debug.log*
+lerna-debug.log*
+*.tsbuildinfo
+.vite/
+dist/
+build/
+coverage/
+.nyc_output/
+eslintcache
+.parcel-cache/
+.next/
+.nuxt/
+.cache/
+.svelte-kit/
+.rspack/
+.turbo/
+
+########## OS ##########
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+DocumentRevisions-V100/
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Linux
+*~
+.nfs*
+
+########## Editor ##########
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.default
+
+# IDEA / PyCharm
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Vim
+*.swp
+*.swo
+*.swn
+*~
+
+########## Local env / secrets ##########
+.env
+.env.*
+!.env.example
+!.env.template
+*.secret
+*.key
+*.pem
+*.crt
+
+########## Docker / DB / Logs ##########
+docker-compose.override.yml
+postgres-data/
+mysql-data/
+redis-data/
+mongodb-data/
+minio-data/
+logs/
+*.log
+*.pid
+*.pid.lock
+
+########## Python virtualenv ##########
+# 如果你把 venv 建在仓库里
+.venv/
+venv/
+ENV/
+env/
