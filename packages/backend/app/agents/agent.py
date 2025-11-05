@@ -31,6 +31,7 @@ llm = ChatOpenAI(
     base_url="https://api.deepseek.com",
     # organization="...",
     # other params...
+    streaming=True,
 )
 # glm_flash = ChatOpenAI(
 #     model="glm-4.5-flash",
@@ -71,9 +72,23 @@ def get_weather(city: str) -> str:
 #     system_prompt="你是一个默认用中文回答的智能体",
 # )
 
-tools = asyncio.run(client.get_tools())
+
+async def get_mcp_tools():
+    return await client.get_tools()
+
+
+# 初始化时先创建一个基础的agent，包含同步工具
 agent = create_agent(
     model=llm,
-    tools=[get_weather] + tools,
+    tools=[get_weather],  # 暂时只使用同步工具
     system_prompt="你是一个默认用中文回答的智能体",
 )
+
+
+async def init_agent():
+    mcp_tools = await get_mcp_tools()
+    return create_agent(
+        model=llm,
+        tools=mcp_tools + [get_weather],
+        system_prompt="你是一个默认用中文回答的智能体",
+    )
