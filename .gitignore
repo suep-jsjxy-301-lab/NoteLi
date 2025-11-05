@@ -134,5 +134,3 @@ logs/
 venv/
 ENV/
 env/
-
-.langgraph_api/
