@@ -1,11 +1,12 @@
-from fastapi import FastAPI
-
-import app.api.v1.router as api_router
+# app/main.py
+from fastapi import FastAPI, logger
+from app.core.logging import logger
+from app.api.v1 import router
 
 app = FastAPI()
 
-app.include_router(api_router.router)
-
+app.include_router(router)
+logger.info("服务启动")
 
 @app.get("/")
 async def root():

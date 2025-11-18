@@ -1,0 +1,9 @@
+[common]
+timezone = "Asia/Shanghai"
+
+[log]
+# 日志级别（从高到低）：
+# CRITICAL > ERROR > WARNING > INFO > DEBUG > TRACE
+# 只输出 >= 该级别的日志
+level = "DEBUG"
+file_level = "WARNING"

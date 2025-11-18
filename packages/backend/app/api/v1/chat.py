@@ -1,9 +1,17 @@
+# app/api/v1/chat.py
 from fastapi import APIRouter
 
-router = APIRouter(
+from app.agents.router import knowledge_workflow
+
+auth_router = APIRouter(
     prefix="/chat",
-    tags=["chat"],
+    tags=["对话API"],
 )
-@router.get("/")
+
+
+@auth_router.post("/")
 async def get_chat():
-    return {"message": "This is the chat endpoint"}
+    response = knowledge_workflow.astream({"input": "帮我整理项目管理相关的知识"})
+    return {"message": response}
+
+    # return {"message": "Chat endpoint is working."}
