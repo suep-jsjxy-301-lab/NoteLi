@@ -41,9 +41,7 @@ async def http_exception_handler(request: Request, exc: Exception) -> Response:
     fail_func: Callable[
         [Dict[str, Any] | List[Any] | str | None], ResponseModel[Any]
     ] = STATUS_MAP.get(exc.status_code, fail_internal_error)
-    logger.warning(
-        "HTTPException %s %s - %s", exc.status_code, request.url.path, exc.detail
-    )
+    logger.warning(f"HTTPException {exc.status_code} {request.url.path} - {exc.detail}")
     return Response(
         status_code=exc.status_code,
         media_type="application/json",
