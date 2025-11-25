@@ -7,3 +7,20 @@ timezone = "Asia/Shanghai"
 # 只输出 >= 该级别的日志
 level = "DEBUG"
 file_level = "WARNING"
+
+[redis]
+host = "106.14.58.94"
+port = "6379"
+password = "${REDIS_PASSWORD}"
+
+[postgresql]
+host = "106.14.58.94"
+port = "5432"
+username = "${PSQL_USERNAME}"
+password = "${PSQL_PASSWORD}"
+DBName = "NoteLIDB"
+
+[jwt]
+secret_key = "${JWT_SECRET_KEY}" # 256-bit hex，openssl rand -hex 32
+algorithm = "HS256"
+access_token_expire_minutes = 30

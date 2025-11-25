@@ -6,8 +6,8 @@ app.models.response 的 Docstring
 """
 
 from datetime import datetime, timezone
-from typing import Any, Optional
-from pydantic import BaseModel, Field
+from typing import Any, Optional, Generic, TypeVar
+from pydantic import BaseModel, Field, model_validator
 
 
 class ErrorModel(BaseModel):
@@ -20,8 +20,8 @@ class ErrorModel(BaseModel):
         details (Optional[Any]): 错误详情信息
     """
 
-    error_code: int = Field(..., description="错误代码", alias="code")
-    error_message: str = Field(..., description="错误消息内容", alias="message")
+    error_code: int = Field(..., description="错误代码")
+    error_message: str = Field(..., description="错误消息内容")
     details: Optional[Any] = Field(None, description="错误详情信息")
 
 
@@ -42,7 +42,10 @@ class PaginationModel(BaseModel):
     size: int = Field(..., description="每页记录数")
 
 
-class ResponseModel(BaseModel):
+T = TypeVar("T")
+
+
+class ResponseModel(BaseModel, Generic[T]):
     """
     标准API响应模型
 
@@ -57,13 +60,21 @@ class ResponseModel(BaseModel):
 
     success: bool = Field(..., description="操作是否成功")
     message: str = Field(..., description="响应消息内容")
-    data: Optional[Any] = Field(default=None, description="响应数据内容")
+    data: Optional[T] = Field(default=None, description="响应数据内容")
     error: Optional[ErrorModel] = Field(
-        default=None, description="错误信息(可选)", alias="error_info"
+        default=None, description="错误信息(可选)"
     )
     pagination: Optional[PaginationModel] = Field(
         default=None, description="分页信息(可选)"
     )
     timestamp: datetime = Field(
-        default_factory=datetime.now(timezone.utc), description="响应时间戳"
+        default_factory=lambda: datetime.now(timezone.utc), description="响应时间戳"
     )
+
+    @model_validator(mode="after")
+    def check_consistency(self):
+        if self.success and self.error:
+            raise ValueError("success=True 时不应包含 error")
+        if not self.success and not self.error:
+            raise ValueError("success=False 时应包含 error")
+        return self

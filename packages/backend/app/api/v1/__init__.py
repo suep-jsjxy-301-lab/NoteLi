@@ -3,6 +3,7 @@ from fastapi import APIRouter
 
 import app.api.v1.chat as chat
 import app.api.v1.auth as auth
+import app.api.v1.user as user
 
 
 router = APIRouter(
@@ -11,6 +12,7 @@ router = APIRouter(
 
 router.include_router(chat.auth_router)
 router.include_router(auth.auth_router)
+router.include_router(user.user_router)
 
 
-__all__ = ["router"]
+__all__: list[str] = ["router"]

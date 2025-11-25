@@ -1,6 +1,11 @@
 # app/core/config.py
+import os
+import tomllib
+from string import Template
 from pathlib import Path
 from typing import Final
+
+import dotenv
 from pydantic import BaseModel, Field, field_validator
 
 TOML_PATH: Final = Path(__file__).parent.parent.with_name("config.toml")
@@ -40,18 +45,37 @@ class LogCfg(BaseModel):
         return lv
 
 
+class RedisCfg(BaseModel):
+    host: str = Field(default="localhost", description="Redis 服务地址")
+    port: int = Field(default=6379, description="Redis 端口")
+    password: str = Field(
+        default="${REDIS_PASSWORD}",
+        description="Redis 密码；优先读取环境变量 ${REDIS_PASSWORD}",
+    )
+
+
+class JWTCfg(BaseModel):
+    secret_key: str = "${JWT_SECRET_KEY}"  # 256-bit hex，openssl rand -hex 32
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+
+
 class Config(BaseModel):
     common: CommonCfg = CommonCfg()
     # db: DbCfg = DbCfg()
     log: LogCfg = LogCfg()
+    redis: RedisCfg = RedisCfg()
+    jwt: JWTCfg = JWTCfg()
 
 
 # ------------------ 单例 ------------------
 def load_cfg() -> Config:
-    import tomllib
+    env_path = TOML_PATH.with_name(".env")
+    dotenv.load_dotenv(env_path, override=True)
+    raw = TOML_PATH.read_text(encoding="utf-8")
+    # 把 ${REDIS_PASSWORD} 等全部替换
+    resolved = Template(raw).safe_substitute(os.environ)
+    return Config.model_validate(tomllib.loads(resolved))
 
-    with TOML_PATH.open("rb") as f:
-        return Config.model_validate(tomllib.load(f))
 
-
-cfg: Config = load_cfg()  # 全局可直接导入
+cfg: Config = load_cfg()

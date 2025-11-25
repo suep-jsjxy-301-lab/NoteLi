@@ -11,6 +11,13 @@ dependencies = [
     "langchain-openai>=1.0.3",
     "langgraph>=1.0.3",
     "loguru>=0.7.3",
+    "orjson>=3.11.4",
+    "passlib[bcrypt]>=1.7.4",
+    "pwdlib[argon2]>=0.3.0",
+    "pyjwt>=2.10.1",
     "python-dotenv>=1.2.1",
     "pytz>=2025.2",
+    "redis[hiredis]>=7.0.1",
+    "tortoise-orm[accel,psycopg]>=0.25.1",
+    "types-pyjwt>=1.7.1",
 ]
