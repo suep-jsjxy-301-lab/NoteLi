@@ -1,9 +1,34 @@
 # NoteLi后端
 
 ## 项目概述
+
 NoteLi 是一个基于 FastAPI 的后端项目，集成了 AI Agent 功能（使用 LangGraph/LangChain）。项目遵循清晰的分层架构，将业务逻辑、数据访问、接口定义等分离。
 
-## 项目结构图
+### 开发
+
+```bash
+uv sync #同步项目依赖
+
+uv run fastapi dev #运行开发服务器
+```
+打开`http://127.0.0.1:8000/docs`就可以看到开发文档
+
+### 部署
+
+```bash
+uvicorn app.main:app --reload --log-level warning
+```
+
+### 配置
+
+1. 环境变量
+    新建`.env`文件或直接设置环境变量`REDIS_PASSWORD`、`JWT_SECRET_KEY`
+
+2. 配置文件
+    `config.toml`是配置文件，里面有详细的注释
+
+## 后端结构图
+
 ```
 NoteLi-backend/
 ├── app/                          # FastAPI 应用主包

@@ -4,7 +4,7 @@ from typing import AsyncGenerator
 
 from fastapi import FastAPI
 
-from app.core.config import cfg  # 统一配置入口
+# from app.core.config import cfg  # 统一配置入口
 from app.core.logger import logger  # 统一日志
 
 from app.core.redis import init_redis, close_redis

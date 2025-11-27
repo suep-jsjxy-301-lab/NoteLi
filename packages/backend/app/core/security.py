@@ -20,7 +20,7 @@ from app.models.models import User
 SECRET_KEY: str = cfg.jwt.secret_key
 ALGORITHM: str = cfg.jwt.algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES: int = cfg.jwt.access_token_expire_minutes
-REFRESH_TOKEN_EXPIRE_DAYS: int = 30
+REFRESH_TOKEN_EXPIRE_DAYS: int = cfg.jwt.refresh_token_expire_days
 
 password_hash: PasswordHash = PasswordHash.recommended()
 
