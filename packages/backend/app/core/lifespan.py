@@ -1,6 +1,7 @@
 # app/core/lifespan.py
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
+import asyncio
 
 from fastapi import FastAPI
 
@@ -39,9 +40,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         logger.info(f"✅ 管理员用户已存在: {admin_username}")
 
 
-    yield  # 这里把控制权交回 FastAPI，开始接收请求
-
-    # ────────────── 关闭 ──────────────
-    logger.info("🛑 服务关闭")
-    await close_db()
-    await close_redis()
+    try:
+        yield  # 开始接收请求
+    except asyncio.CancelledError:
+        logger.info("⚠️ 收到退出信号，开始关闭...")
+    finally:
+        # ────────────── 关闭 ──────────────
+        logger.info("🛑 服务关闭")
+        await close_db()
+        await close_redis()

@@ -17,7 +17,7 @@ class UserRepository:
         return user
 
     @staticmethod
-    async def get_user_by_id(user_id: UUID) -> Optional[User]:
+    async def get_user_by_id(user_id:  str | UUID) -> Optional[User]:
         """根据ID获取用户"""
         user = await User.filter(id=user_id).first()
         return user

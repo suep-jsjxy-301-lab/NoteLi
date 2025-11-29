@@ -2,19 +2,17 @@
 app.api.v1.auth 的 Docstring
 """
 
-from typing import Literal
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.core.security import (
-    create_access_token,
-    create_refresh_token,
+from app.dependencies import (
     get_current_user,
-    authenticate_user,
-    validate_refresh_token,
 )
+
 from app.core.logger import logger
 from app.models.models import User
+from app.services.user import UserService
+from app.services.token import TokenService
 from app.schemas.token import Token, RefreshToken, AccessToken
 from app.schemas.user import UserOut
 from app.schemas.response import ResponseModel
@@ -57,7 +55,7 @@ async def login_for_access_token(
     logger.debug(f"收到来自: {form_data.username}的登录请求")
 
     # 验证用户名密码
-    user: User | Literal[False] = await authenticate_user(
+    user: User | None = await UserService.authenticate(
         username=form_data.username, password=form_data.password
     )
     if not user:
@@ -68,8 +66,8 @@ async def login_for_access_token(
         )
 
     # 生成 access token 和 refresh token
-    access_token: str = create_access_token(user=user)
-    refresh_token: str = create_refresh_token(sub=user.id)
+    access_token: str = await TokenService.create_access_token(user=user)
+    refresh_token: str = await TokenService.create_refresh_token(sub=user.id)
     # 可选：返回 refresh token，或单独在 /refresh 接口生成
     logger.info(f"{user.username} 登录成功")
 
@@ -98,7 +96,7 @@ async def login_for_access_token_swagger(
     logger.debug(f"收到来自: {form_data.username}的登录请求")
 
     # 验证用户名密码
-    user: User | Literal[False] = await authenticate_user(
+    user: User | None = await UserService.authenticate(
         username=form_data.username, password=form_data.password
     )
     if not user:
@@ -109,8 +107,8 @@ async def login_for_access_token_swagger(
         )
 
     # 生成 access token 和 refresh token
-    access_token: str = create_access_token(user=user)
-    refresh_token: str = create_refresh_token(sub=user.id)
+    access_token: str = await TokenService.create_access_token(user=user)
+    refresh_token: str = await TokenService.create_refresh_token(sub=user.id)
     # 可选：返回 refresh token，或单独在 /refresh 接口生成
     logger.info(f"{user.username} 登录成功")
 
@@ -134,19 +132,55 @@ async def refresh_access_token(req: RefreshToken) -> ResponseModel[AccessToken]:
     Raises:
         HTTPException: 401 refresh_token 无效或已过期。
     """
-    current_user: User = await validate_refresh_token(refresh_token=req.refresh_token)
-    new_access_token: str = create_access_token(user=current_user)
+    current_user: User = await TokenService.validate_refresh_token(
+        refresh_token=req.refresh_token
+    )
+    new_access_token: str = await TokenService.create_access_token(user=current_user)
     return ok(data=AccessToken(access_token=new_access_token))
 
 
-@auth_router.post(path="/logout")
-async def logout(current_user: User = Depends(dependency=get_current_user)):
+@auth_router.post(path="/logout", response_model=ResponseModel[None])
+async def logout(
+    req: RefreshToken,
+    current_user: User = Depends(get_current_user),
+) -> ResponseModel[None]:
     """
-    注销：通常需要将 token 加入黑名单（使用 Redis 等）
-    这里简化返回成功。
+    用户登出：将 refresh_token 加入 Redis 黑名单，使其立即失效。
+
+    前端需在请求体中传入当前有效的 refresh_token。
+    access_token 因有效期短，通常不处理；若需强登出，可额外记录 user_id + 登出时间。
+
+    Args:
+        refresh_token: 客户端当前持有的 refresh token（必须）
+        current_user: 由 access token 解析出的当前用户（用于日志或二次校验）
+
+    Returns:
+        成功消息。
+
+    Raises:
+        HTTPException: 400 如果 refresh_token 无效；401 如果与当前用户不匹配。
     """
-    # TODO: 将当前 token 的 jti 或 user_id + exp 加入 Redis 黑名单
-    return {"msg": "Successfully logged out"}
+    # 验证 refresh_token 是否属于当前用户（可选但推荐）
+    try:
+        user: User = await TokenService.validate_refresh_token(
+            refresh_token=req.refresh_token
+        )
+        if str(object=user.id) != str(object=current_user.id):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Refresh token does not belong to current user",
+            )
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid refresh_token format",
+        )
+
+    # 将 refresh_token 加入黑名单
+    await TokenService.revoke_refresh_token(req.refresh_token)
+
+    logger.info(f"User {current_user.username} logged out successfully")
+    return ok(message="logged out successfully")
 
 
 @auth_router.get(path="/me", response_model=ResponseModel[UserOut])
