@@ -179,8 +179,8 @@ async def logout(
     # 将 refresh_token 加入黑名单
     await TokenService.revoke_refresh_token(req.refresh_token)
 
-    logger.info(f"User {current_user.username} logged out successfully")
-    return ok(message="logged out successfully")
+    logger.info(f"用户 {current_user.username} 退出登录成功")
+    return ok(message="退出登录成功")
 
 
 @auth_router.get(path="/me", response_model=ResponseModel[UserOut])

@@ -11,7 +11,7 @@ T = TypeVar("T")
 
 def ok(
     data: Optional[T] = None,
-    message: str = "success",
+    message: str = "成功",
     pagination: Optional[PaginationModel] = None,
 ) -> ResponseModel[T]:
     """单条或任意 JSON 数据"""
@@ -25,7 +25,7 @@ def ok(
 
 
 def ok_list(
-    items: List[T], total: int, page: int = 1, size: int = 10, message: str = "success"
+    items: List[T], total: int, page: int = 1, size: int = 10, message: str = "成功"
 ) -> ResponseModel[List[T]]:
     """带分页的列表数据"""
     total_pages = (total + size - 1) // size
@@ -35,7 +35,7 @@ def ok_list(
     return ok(data=items, message=message, pagination=pagination)
 
 
-def ok_created(data: Optional[T] = None, message: str = "created") -> ResponseModel[T]:
+def ok_created(data: Optional[T] = None, message: str = "已创建") -> ResponseModel[T]:
     """201 Created 响应"""
     return ResponseModel[T](
         success=True,
@@ -45,7 +45,7 @@ def ok_created(data: Optional[T] = None, message: str = "created") -> ResponseMo
     )
 
 
-def ok_no_content(message: str = "no content") -> ResponseModel[None]:
+def ok_no_content(message: str = "无内容") -> ResponseModel[None]:
     """204 No Content 响应"""
     return ResponseModel(
         success=True,
@@ -60,7 +60,7 @@ def ok_no_content(message: str = "no content") -> ResponseModel[None]:
 
 def fail(
     code: int = status.HTTP_400_BAD_REQUEST,
-    message: str = "bad request",
+    message: str = "请求错误",
     error_code: int = 0,
     details: Optional[Dict[str, Any] | List[Any] | str] = None,
 ) -> ResponseModel[None]:
@@ -75,7 +75,7 @@ def fail(
 
 def fail_not_found(
     details: Optional[Dict[str, Any] | List[Any] | str] = None,
-    message: str = "resource not found",
+    message: str = "资源未找到",
 ) -> ResponseModel[Any]:
     """404 快捷函数"""
     return fail(
@@ -88,7 +88,7 @@ def fail_not_found(
 
 def fail_unauthorized(
     details: Optional[Dict[str, Any] | List[Any] | str] = None,
-    message: str = "unauthorized",
+    message: str = "未授权",
 ) -> ResponseModel[Any]:
     """401 快捷函数"""
     return fail(
@@ -101,7 +101,7 @@ def fail_unauthorized(
 
 def fail_forbidden(
     details: Optional[Dict[str, Any] | List[Any] | str] = None,
-    message: str = "forbidden",
+    message: str = "禁止访问",
 ) -> ResponseModel[Any]:
     """403 快捷函数"""
     return fail(
@@ -114,7 +114,7 @@ def fail_forbidden(
 
 def fail_conflict(
     details: Optional[Dict[str, Any] | List[Any] | str] = None,
-    message: str = "conflict",
+    message: str = "冲突",
 ) -> ResponseModel[Any]:
     """409 快捷函数"""
     return fail(
@@ -140,7 +140,7 @@ def fail_internal_error(
 
 def fail_bad_request(
     details: Optional[Dict[str, Any] | List[Any] | str] = None,
-    message: str = "bad request",
+    message: str = "请求错误",
 ) -> ResponseModel[Any]:
     """400 快捷函数"""
     return fail(
@@ -153,7 +153,7 @@ def fail_bad_request(
 
 def fail_validation_error(
     details: Optional[Dict[str, Any] | List[Any] | str] = None,
-    message: str = "validation error",
+    message: str = "验证错误",
 ) -> ResponseModel[Any]:
     """422 验证错误快捷函数"""
     return fail(

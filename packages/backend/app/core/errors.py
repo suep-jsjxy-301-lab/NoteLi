@@ -38,12 +38,36 @@ async def http_exception_handler(request: Request, exc: Exception) -> Response:
     按状态码自动匹配 fail_* 函数；若未在 STATUS_MAP 中定义，则统一用 500。
     """
     assert isinstance(exc, StarletteHTTPException)
+    
+    # 对于401错误，使用专门的处理函数
+    if exc.status_code == 401:
+        return await unauthorized_exception_handler(request, exc)
+    
     fail_func: Callable[
         [Dict[str, Any] | List[Any] | str | None], ResponseModel[Any]
     ] = STATUS_MAP.get(exc.status_code, fail_internal_error)
-    logger.warning(f"HTTPException {exc.status_code} {request.url.path} - {exc.detail}")
+    logger.warning(f"HTTP异常 {exc.status_code} {request.url.path} - {exc.detail}")
     return Response(
         status_code=exc.status_code,
+        media_type="application/json",
+        content=orjson.dumps(fail_func(exc.detail).model_dump()),
+    )
+
+
+async def unauthorized_exception_handler(request: Request, exc: StarletteHTTPException) -> Response:
+    """
+    专门处理401未授权错误的函数
+    """
+    assert isinstance(exc, StarletteHTTPException)
+    assert exc.status_code == 401
+    
+    logger.warning(f"认证失败 401 {request.url.path} - {exc.detail}")
+    fail_func: Callable[
+        [Dict[str, Any] | List[Any] | str | None], ResponseModel[Any]
+    ] = STATUS_MAP.get(401, fail_unauthorized)
+    
+    return Response(
+        status_code=401,
         media_type="application/json",
         content=orjson.dumps(fail_func(exc.detail).model_dump()),
     )
@@ -55,7 +79,7 @@ async def validation_exception_handler(request: Request, exc: Exception) -> Resp
     message = "; ".join(
         [f"{'.'.join(map(str, err['loc']))}: {err['msg']}" for err in exc.errors()]
     )
-    logger.info("Validation error %s - %s", request.url.path, message)
+    logger.info("验证错误 %s - %s", request.url.path, message)
     return Response(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         media_type="application/json",
@@ -65,12 +89,12 @@ async def validation_exception_handler(request: Request, exc: Exception) -> Resp
 
 async def all_exception_handler(request: Request, exc: Exception) -> Response:
     """兜底：捕获任何未处理的 Python 异常，返回 500"""
-    logger.exception("Unhandled exception at %s", request.url.path)
+    logger.exception("未处理的异常发生在 %s", request.url.path)
     return Response(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         media_type="application/json",
         content=orjson.dumps(
-            fail_internal_error(details="Internal server error").model_dump()
+            fail_internal_error(details="内部服务器错误").model_dump()
         ),
     )
 
