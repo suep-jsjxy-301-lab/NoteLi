@@ -31,6 +31,7 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
+import { loginApi } from '@/api/auth'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -52,27 +53,19 @@ const handleLogin = async () => {
 
     try {
         // 模拟 API 调用延迟
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        // 这里是模拟的登录验证逻辑 (实际项目中应替换为真实 API)
-        // 硬编码一个测试账号: admin / 123456
-        if (form.username === 'admin' && form.password === '123456') {
-            userStore.login({
-                access_token:'aaa',
-                refresh_token:'bbb',
-                user_id:1,
-                username:'admin',
-                email:'admin@example.com',
-                avatar:'',
-                nickname:'管理员'
-            })
-            router.push('/notes'); // 登录成功后跳转到笔记页面
-        } else {
-            message.text = '用户名或密码错误';
-            message.type = 'error';
-        }
+        const response = await loginApi(form.username, form.password);
+        userStore.login({
+            access_token: response.access_token,
+            refresh_token: response.refresh_token,
+            user_id: 1,
+            username: form.username,
+            email: 'admin@example.com',
+            avatar: '',
+            nickname: '管理员'
+        })
+        router.push('/notes'); // 登录成功后跳转到笔记页面
     } catch (error) {
-        message.text = '网络错误，请稍后再试';
+        message.text = '用户名或密码错误';
         message.type = 'error';
         console.error('登录出错:', error);
     } finally {
