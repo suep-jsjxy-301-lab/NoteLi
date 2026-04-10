@@ -5,12 +5,14 @@ import App from './src/App.vue'
 import RegisterView from './src/views/RegisterView.vue'
 import LoginView from './src/views/LoginView.vue'
 import NoteView from './src/views/NoteView.vue'
+import UserProView from './src/views/UserProView.vue'
 
 const routes = [
-    {path:"/",component:LoginView},
+    {path:"/",component:UserProView},
     {path:"/login",component:LoginView},
     {path:"/register",component:RegisterView},
-    {path:"/notes",component:NoteView}
+    {path:"/notes",component:NoteView},
+    {path:"/user",component:UserProView}
 ]
 
 const router = createRouter({

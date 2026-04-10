@@ -564,8 +564,7 @@ const closeUserMenu = () => {
 // 跳转到个人中心（占位函数）
 const goToProfile = () => {
   closeUserMenu()
-  console.log('跳转到个人中心')
-  alert('跳转到个人中心（功能待实现）')
+  router.push('/user')
 }
 
 // 跳转到账号设置（占位函数）
