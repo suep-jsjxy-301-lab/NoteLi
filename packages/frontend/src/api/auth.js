@@ -1,6 +1,18 @@
 import axios from 'axios';
 import qs from 'qs';
 
+const request = axios.create({
+  baseURL: '/api/v1'
+});
+
+request.interceptors.request.use((config) => {
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const loginApi = (username, password) => {
   const formData = qs.stringify({ username, password });
   
@@ -12,7 +24,7 @@ export const loginApi = (username, password) => {
 };
 
 export const getMeApi = (token) => {
-  return axios.get('/api/v1/user/me', {
+  return request.get('/user/me', {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -20,7 +32,15 @@ export const getMeApi = (token) => {
 };
 
 export const registerApi = (payload) => {
-  return axios.post('/api/v1/user/register', payload, {
+  return request.post('/user/register', payload, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+};
+
+export const verify_password = (password) => {
+  return request.post('/auth/verify-password', { password }, {
     headers: {
       'Content-Type': 'application/json'
     }

@@ -65,3 +65,11 @@ class UserService:
     async def delete_user(user_id: UUID) -> bool:
         """删除用户"""
         return await UserRepository.delete_user(user_id)
+    
+    @staticmethod
+    async def verify_password(username: str, password: str) -> bool:
+        """验证用户密码"""
+        user = await UserRepository.get_user_by_username(username)
+        if not user:
+            return False
+        return verify_password(password, user.password)

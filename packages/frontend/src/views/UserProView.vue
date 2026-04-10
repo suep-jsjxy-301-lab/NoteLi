@@ -311,23 +311,25 @@
 <script setup>
 import { reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '../store/user'
+import { verify_password } from '../api/auth'
 
 const router = useRouter()
+const userStore = useUserStore()
 
 // ========== 用户信息（模拟数据） ==========
 const userInfo = reactive({
-  id: '202400123',
-  username: 'zhangsan',
-  nickname: '张三',
-  email: 'zhangsan@example.com',
-  phone: '13800138000',
-  avatar: '',
+  id: userStore.userInfo.id,
+  username: userStore.userInfo.username,
+  email: userStore.userInfo.email,
+  phone: userStore.userInfo.phone || '',
+  avatar: userStore.userInfo.avatar,
   isVerified: true
 })
 
 // 用户头像首字母
 const userInitial = computed(() => {
-  const name = userInfo.nickname || userInfo.username
+  const name = userInfo.username
   return name ? name.charAt(0).toUpperCase() : 'U'
 })
 
@@ -377,7 +379,7 @@ const handleAvatarChange = (event) => {
   }
 }
 
-// ========== 退出登录 ==========
+// ========== 返回主页 ==========
 const handlehome = () => {
   router.push('/notes')
 }
@@ -519,18 +521,20 @@ const handleDeleteAccount = async () => {
   }
   
   deleteLoading.value = true
-  
   try {
-    await new Promise(resolve => setTimeout(resolve, 1500))
     
-    if (deleteConfirmPassword.value !== '123456') {
+    const response = await verify_password(deleteConfirmPassword.value)
+    console.log('密码验证结果:', response.data)
+    if (response.data.success !== true) {
       alert('密码错误，无法注销账户')
       deleteLoading.value = false
       return
     }
     
     alert('账户已永久注销。')
+    userStore.logout()
     closeDeleteModal()
+    router.push('/login')
   } catch (error) {
     alert('注销失败，请稍后重试')
   } finally {

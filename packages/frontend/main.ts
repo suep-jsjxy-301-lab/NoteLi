@@ -8,7 +8,7 @@ import NoteView from './src/views/NoteView.vue'
 import UserProView from './src/views/UserProView.vue'
 
 const routes = [
-    {path:"/",component:UserProView},
+    {path:"/",component:LoginView},
     {path:"/login",component:LoginView},
     {path:"/register",component:RegisterView},
     {path:"/notes",component:NoteView},

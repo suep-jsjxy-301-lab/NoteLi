@@ -53,24 +53,25 @@ const handleLogin = async () => {
     try {
         const response = await loginApi(form.username, form.password);
         const tokenData = response?.data?.data;
-        const accessToken = tokenData?.access_token;
-        const refreshToken = tokenData?.refresh_token;
+        const access_token = tokenData?.access_token;
+        const refresh_token = tokenData?.refresh_token;
 
-        if (!accessToken || !refreshToken) {
+        if (!access_token || !refresh_token) {
             throw new Error('登录响应缺少 token 信息');
         }
-
-        const meResponse = await getMeApi(accessToken);
+        
+        const meResponse = await getMeApi(access_token);
         const me = meResponse?.data?.data || {};
-
         userStore.login({
-            access_token: accessToken,
-            refresh_token: refreshToken,
+            access_token: access_token,
+            refresh_token: refresh_token,
             user_id: me.id ?? null,
             username: me.username ?? form.username,
             email: me.email ?? '',
+            phone: me.phone ?? '',
             avatar: ''
         })
+        
         router.push('/notes'); // 登录成功后跳转到笔记页面
     } catch (error) {
         if (error?.response?.status === 401) {

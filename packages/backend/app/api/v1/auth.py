@@ -16,6 +16,7 @@ from app.services.token import TokenService
 from app.schemas.token import Token, RefreshToken, AccessToken
 from app.schemas.user import UserOut
 from app.schemas.response import ResponseModel
+from app.schemas.request import VerifyPasswordRequest
 from app.utils.response import ok
 # from app.core.config import cfg
 
@@ -204,3 +205,22 @@ async def read_users_me(
             phone=current_user.phone,
         )
     )
+
+@auth_router.post(path="/verify-password", response_model=ResponseModel[bool])
+async def verify_password(
+    request: VerifyPasswordRequest,
+    current_user: User =  Depends(dependency=get_current_user),
+) -> ResponseModel[bool]:
+    """
+    验证当前用户的密码是否正确。
+
+    Args:
+        request: 包含待验证密码的请求体。
+        current_user: 由依赖注入的当前登录用户。
+    Returns:
+        统一响应包装，data 字段为布尔值，表示密码是否正确。
+    """
+    is_valid = await UserService.verify_password(
+        username=current_user.username, password=request.password
+    )
+    return ok(data=is_valid)
