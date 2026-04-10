@@ -26,6 +26,10 @@ port = "6379"
 # 密码通过环境变量 REDIS_PASSWORD 注入，避免明文落盘
 # 如果 Redis 未启用 AUTH，可置空字符串：REDIS_PASSWORD=""
 password = "${REDIS_PASSWORD}"
+# 是否启用 Redis 降级模式：
+# true  -> Redis 不可用时继续启动（黑名单等能力降级）
+# false -> 保持原行为，Redis 不可用则启动失败
+degrade_on_failure = true
 
 [postgresql]
 # 主数据库配置，NoteLIDB 为业务库名

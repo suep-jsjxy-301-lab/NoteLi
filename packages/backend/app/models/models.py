@@ -7,4 +7,5 @@ class User(Model):
     id= fields.UUIDField(primary_key=True) 
     username= fields.CharField(max_length=64, unique=True)
     password= fields.CharField(max_length=128)
-    role= fields.CharField(max_length=32, default="user")
+    email= fields.CharField(max_length=255, unique=True)
+    phone= fields.CharField(max_length=16, unique=True, null=True)

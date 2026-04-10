@@ -52,6 +52,10 @@ class RedisCfg(BaseModel):
         default="${REDIS_PASSWORD}",
         description="Redis 密码；优先读取环境变量 ${REDIS_PASSWORD}",
     )
+    degrade_on_failure: bool = Field(
+        default=False,
+        description="Redis 不可用时是否降级启动（True: 不中断服务）",
+    )
 
 
 class JWTCfg(BaseModel):

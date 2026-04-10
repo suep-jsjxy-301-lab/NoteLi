@@ -8,8 +8,7 @@ export const useUserStore = defineStore('user', () => {
     id: null,
     username: '',
     email: '',
-    avatar: '',
-    nickname: ''
+    avatar: ''
   })
   
   const token = ref(localStorage.getItem('token') || '')
@@ -26,8 +25,7 @@ export const useUserStore = defineStore('user', () => {
       id: loginData.user_id,
       username: loginData.username,
       email: loginData.email,
-      avatar: loginData.avatar,
-      nickname: loginData.nickname
+      avatar: loginData.avatar
     }
     
     // 持久化存储
@@ -44,8 +42,7 @@ export const useUserStore = defineStore('user', () => {
       id: null,
       username: '',
       email: '',
-      avatar: '',
-      nickname: ''
+      avatar: ''
     }
     
     localStorage.removeItem('token')

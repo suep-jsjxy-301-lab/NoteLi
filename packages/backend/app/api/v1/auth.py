@@ -194,10 +194,13 @@ async def read_users_me(
         current_user: 由依赖注入的当前登录用户。
 
     Returns:
-        统一响应包装，data 字段为 UserOut 模型（id、username、role）。
+        统一响应包装，data 字段为 UserOut 模型（id、username、email、phone）。
     """
     return ok(
         data=UserOut(
-            id=current_user.id, username=current_user.username, role=current_user.role
+            id=current_user.id,
+            username=current_user.username,
+            email=current_user.email,
+            phone=current_user.phone,
         )
     )

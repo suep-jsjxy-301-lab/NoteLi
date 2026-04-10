@@ -56,7 +56,7 @@ async def get_current_active_user(
 
 async def get_admin_user(current_user: User = Depends(get_current_user)) -> User:
     """确保当前用户是管理员，否则抛 403"""
-    if current_user.role != "admin":
+    if current_user.username != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="权限不足，只有管理员可以执行此操作",

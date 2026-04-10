@@ -5,9 +5,13 @@ from uuid import UUID
 
 class UserRepository:
     @staticmethod
-    async def create_user(username: str, password: str, role: str = "user") -> User:
+    async def create_user(
+        username: str, password: str, email: str, phone: str | None = None
+    ) -> User:
         """创建新用户"""
-        user = await User.create(username=username, password=password, role=role)
+        user = await User.create(
+            username=username, password=password, email=email, phone=phone
+        )
         return user
 
     @staticmethod
@@ -27,12 +31,6 @@ class UserRepository:
         """获取所有用户"""
         users = await User.all()
         return users
-
-    @staticmethod
-    async def update_user_role(user_id: UUID, role: str) -> bool:
-        """更新用户角色"""
-        updated_count = await User.filter(id=user_id).update(role=role)
-        return updated_count > 0
 
     @staticmethod
     async def delete_user(user_id: UUID) -> bool:

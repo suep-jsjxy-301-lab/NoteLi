@@ -7,7 +7,7 @@ import time
 from fastapi import HTTPException, status
 from datetime import timedelta, timezone
 from datetime import datetime
-from typing import Any, Dict, Literal, cast
+from typing import Any, Dict, Literal
 from uuid import UUID
 
 from redis.asyncio.client import Redis
@@ -36,7 +36,7 @@ class TokenService:
         :param expires_delta: 自定义过期时长，默认读取配置
         :return: JWT 字符串
         """
-        scope: Literal["admin", "user"] = cast(Literal["admin", "user"], user.role)
+        scope: Literal["admin", "user"] = "admin" if user.username == "admin" else "user"
         iat: datetime = datetime.now(tz=timezone.utc)
         exp: datetime = iat + (
             expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -84,7 +84,11 @@ class TokenService:
             # token 已过期，无需加入黑名单
             return
         ttl = data.exp - now
-        r: Redis = await get_redis()
+        try:
+            r: Redis = await get_redis()
+        except RuntimeError:
+            # Redis 降级模式下，跳过 refresh token 黑名单写入
+            return
         await r.setex(name=f"blacklist:rt:jti:{data.jti}", time=int(ttl), value=1)
 
     @staticmethod
@@ -94,7 +98,11 @@ class TokenService:
         """
         if not jti:
             return False
-        r: Redis = await get_redis()
+        try:
+            r: Redis = await get_redis()
+        except RuntimeError:
+            # Redis 降级模式下，视为“未被拉黑”
+            return False
         key = f"blacklist:rt:jti:{jti}"
         exists = await r.exists(key)
         return bool(exists)

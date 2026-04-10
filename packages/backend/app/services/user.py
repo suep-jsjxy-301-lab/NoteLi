@@ -21,7 +21,7 @@ class UserService:
 
     @staticmethod
     async def create_user(
-        username: str, password: str, role: str = "user"
+        username: str, password: str, email: str, phone: str | None = None
     ) -> Optional[User]:
         """创建新用户服务"""
         # 检查用户名是否已存在
@@ -34,7 +34,7 @@ class UserService:
 
         # 创建用户
         user = await UserRepository.create_user(
-            username=username, password=hashed_password, role=role
+            username=username, password=hashed_password, email=email, phone=phone
         )
 
         return user
@@ -48,11 +48,6 @@ class UserService:
     async def get_all_users() -> list[User]:
         """获取所有用户"""
         return await UserRepository.get_all_users()
-
-    @staticmethod
-    async def update_user_role(user_id: UUID, role: str) -> bool:
-        """更新用户角色"""
-        return await UserRepository.update_user_role(user_id, role)
 
     @staticmethod
     async def delete_user(user_id: UUID) -> bool:

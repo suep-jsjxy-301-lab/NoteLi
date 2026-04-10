@@ -34,7 +34,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     existing_admin = await User.filter(username=admin_username).first()
     if not existing_admin:
         hashed_password = get_password_hash(admin_password)
-        await User.create(username=admin_username, password=hashed_password, role="admin")
+        await User.create(
+            username=admin_username,
+            password=hashed_password,
+            email="admin@email.com",
+            phone=None,
+        )
         logger.info(f"✅ 默认管理员用户已创建: {admin_username}")
     else:
         logger.info(f"✅ 管理员用户已存在: {admin_username}")

@@ -31,7 +31,7 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
-import { loginApi } from '@/api/auth'
+import { loginApi, getMeApi } from '@/api/auth'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -47,25 +47,37 @@ const handleLogin = async () => {
         return;
     }
 
-    // 模拟登录请求
     isLoading.value = true;
     message.text = '';
 
     try {
-        // 模拟 API 调用延迟
         const response = await loginApi(form.username, form.password);
+        const tokenData = response?.data?.data;
+        const accessToken = tokenData?.access_token;
+        const refreshToken = tokenData?.refresh_token;
+
+        if (!accessToken || !refreshToken) {
+            throw new Error('登录响应缺少 token 信息');
+        }
+
+        const meResponse = await getMeApi(accessToken);
+        const me = meResponse?.data?.data || {};
+
         userStore.login({
-            access_token: response.access_token,
-            refresh_token: response.refresh_token,
-            user_id: 1,
-            username: form.username,
-            email: 'admin@example.com',
-            avatar: '',
-            nickname: '管理员'
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            user_id: me.id ?? null,
+            username: me.username ?? form.username,
+            email: me.email ?? '',
+            avatar: ''
         })
         router.push('/notes'); // 登录成功后跳转到笔记页面
     } catch (error) {
-        message.text = '用户名或密码错误';
+        if (error?.response?.status === 401) {
+            message.text = '用户名或密码错误';
+        } else {
+            message.text = '登录请求失败，请检查后端服务是否启动';
+        }
         message.type = 'error';
         console.error('登录出错:', error);
     } finally {
