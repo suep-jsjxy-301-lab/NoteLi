@@ -21,6 +21,18 @@ class UserRepository:
         return user
 
     @staticmethod
+    async def get_user_by_email(email: str) -> Optional[User]:
+        """根据邮箱获取用户"""
+        user = await User.filter(email=email).first()
+        return user
+
+    @staticmethod
+    async def get_user_by_phone(phone: str) -> Optional[User]:
+        """根据手机号获取用户"""
+        user = await User.filter(phone=phone).first()
+        return user
+
+    @staticmethod
     async def get_user_by_id(user_id:  str | UUID) -> Optional[User]:
         """根据ID获取用户"""
         user = await User.filter(id=user_id).first()

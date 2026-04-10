@@ -18,3 +18,11 @@ export const getMeApi = (token) => {
     }
   });
 };
+
+export const registerApi = (payload) => {
+  return axios.post('/api/v1/user/register', payload, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+};

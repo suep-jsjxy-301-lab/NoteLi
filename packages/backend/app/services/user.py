@@ -24,9 +24,11 @@ class UserService:
         username: str, password: str, email: str, phone: str | None = None
     ) -> Optional[User]:
         """创建新用户服务"""
-        # 检查用户名是否已存在
-        existing_user = await UserRepository.get_user_by_username(username)
-        if existing_user:
+        if await UserRepository.get_user_by_username(username):
+            return None
+        if await UserRepository.get_user_by_email(email):
+            return None
+        if phone and await UserRepository.get_user_by_phone(phone):
             return None
 
         # 加密密码
@@ -43,6 +45,16 @@ class UserService:
     async def get_user_by_username(username: str) -> Optional[User]:
         """根据用户名获取用户"""
         return await UserRepository.get_user_by_username(username)
+
+    @staticmethod
+    async def get_user_by_email(email: str) -> Optional[User]:
+        """根据邮箱获取用户"""
+        return await UserRepository.get_user_by_email(email)
+
+    @staticmethod
+    async def get_user_by_phone(phone: str) -> Optional[User]:
+        """根据手机号获取用户"""
+        return await UserRepository.get_user_by_phone(phone)
 
     @staticmethod
     async def get_all_users() -> list[User]:

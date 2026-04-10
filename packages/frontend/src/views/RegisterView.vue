@@ -114,8 +114,12 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, watch } from 'vue'
-import { RouterLink } from 'vue-router'
+import { reactive, ref, computed, watch, onUnmounted } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import { registerApi } from '@/api/auth'
+
+const router = useRouter()
+let redirectTimerId = null
 
 // 表单数据
 const form = reactive({
@@ -261,36 +265,32 @@ const handleRegister = async () => {
     isLoading.value = true
 
     try {
-        // 模拟 API 请求延迟
-        await new Promise(resolve => setTimeout(resolve, 1500))
-
-        // 模拟注册逻辑 - 实际项目中替换为真实 API 调用
-        // 这里模拟检查用户名是否已存在
-        if (form.username.toLowerCase() === 'admin') {
-            message.text = '❌ 该用户名已被注册'
+        const response = await registerApi({
+            username: form.username.trim(),
+            password: form.password,
+            email: form.email.trim(),
+            phone: form.phone.trim() || null
+        })
+        const ok = response?.data?.success
+        if (!ok) {
+            message.text = `❌ ${response?.data?.message || '注册失败'}`
             message.type = 'error'
             return
         }
 
-        // 模拟注册成功
-        message.text = '✅ 注册成功！欢迎加入！'
+        message.text = '✅ 注册成功！1.5 秒后自动前往登录页…'
         message.type = 'success'
-
-        // 打印注册信息（仅用于演示）
-        console.log('注册信息:', {
-            username: form.username,
-            email: form.email,
-            phone: form.phone || '未填写',
-            password: '******'
-        })
-
-        // 实际项目中可以在这里跳转或执行其他操作
-        // 这里不添加跳转，符合您的要求
-
-        // 可选：注册成功后重置表单
-        // resetForm()
+        if (redirectTimerId) {
+            clearTimeout(redirectTimerId)
+        }
+        redirectTimerId = setTimeout(() => {
+            redirectTimerId = null
+            resetForm()
+            router.push('/login')
+        }, 1500)
     } catch (error) {
-        message.text = '❌ 网络错误，请稍后再试'
+        const backendMsg = error?.response?.data?.message
+        message.text = `❌ ${backendMsg || '网络错误，请稍后再试'}`
         message.type = 'error'
         console.error('注册出错:', error)
     } finally {
@@ -298,7 +298,6 @@ const handleRegister = async () => {
     }
 }
 
-// 重置表单（可选）
 const resetForm = () => {
     form.username = ''
     form.email = ''
@@ -317,6 +316,12 @@ const showTerms = () => {
 const showPrivacy = () => {
     alert('《隐私政策》内容：我们重视您的隐私，数据仅用于演示。')
 }
+
+onUnmounted(() => {
+    if (redirectTimerId) {
+        clearTimeout(redirectTimerId)
+    }
+})
 </script>
 
 <style scoped>
