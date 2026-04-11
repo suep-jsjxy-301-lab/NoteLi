@@ -312,7 +312,7 @@
 import { reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../store/user'
-import { verify_password, deleteMeApi, changePasswordApi, logoutApi } from '../api/auth'
+import { verify_password, deleteMeApi, changePasswordApi, changeEmailApi, changePhoneApi, logoutApi } from '../api/auth'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -452,7 +452,14 @@ const handleConfirm = async () => {
           isLoading.value = false
           return
         }
+        const response_by_changeEmail = await changeEmailApi(formData.email)
+        if (response_by_changeEmail.data.success !== true) {
+          showMessage('邮箱修改失败，请稍后重试', 'error')
+          isLoading.value = false
+          return
+        }
         userInfo.email = formData.email
+        userStore.updateUserInfo({ email: userInfo.email })
         showMessage('邮箱修改成功', 'success')
         break
         
@@ -462,7 +469,14 @@ const handleConfirm = async () => {
           isLoading.value = false
           return
         }
+        const response_by_changePhone = await changePhoneApi(formData.phone)
+        if (response_by_changePhone.data.success !== true) {
+          showMessage('电话修改失败，请稍后重试', 'error')
+          isLoading.value = false
+          return
+        }
         userInfo.phone = formData.phone || ''
+        userStore.updateUserInfo({ phone: userInfo.phone })
         showMessage('电话修改成功', 'success')
         break
         
@@ -482,14 +496,14 @@ const handleConfirm = async () => {
           isLoading.value = false
           return
         }
-        const response = await verify_password(formData.currentPassword)
-        if (response.data.success !== true) {
+        const response_by_verifyPassword = await verify_password(formData.currentPassword)
+        if (response_by_verifyPassword.data.success !== true) {
           showMessage('当前密码错误', 'error')
           isLoading.value = false
           return
         }
-        const response2 = await changePasswordApi(formData.newPassword)
-        if(response2.data.success !== true) {
+        const response_by_changePassword = await changePasswordApi(formData.newPassword)
+        if(response_by_changePassword.data.success !== true) {
           showMessage('密码修改失败，请稍后重试', 'error')
           isLoading.value = false
           return
@@ -503,7 +517,6 @@ const handleConfirm = async () => {
     
     closeModal()
   } catch (error) {
-    console.error('修改信息出错:', error)
     showMessage('操作失败，请稍后重试', 'error')
   } finally {
     isLoading.value = false

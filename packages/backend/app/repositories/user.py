@@ -55,3 +55,15 @@ class UserRepository:
         """修改用户密码"""
         updated_count = await User.filter(id=user_id).update(password=new_hashed_password)
         return updated_count > 0
+    
+    @staticmethod
+    async def change_email(user_id: UUID, new_email: str) -> bool:
+        """修改用户邮箱"""
+        updated_count = await User.filter(id=user_id).update(email=new_email)
+        return updated_count > 0
+    
+    @staticmethod
+    async def change_phone(user_id: UUID, new_phone: Optional[str]) -> bool:
+        """修改用户手机号"""
+        updated_count = await User.filter(id=user_id).update(phone=new_phone)
+        return updated_count > 0

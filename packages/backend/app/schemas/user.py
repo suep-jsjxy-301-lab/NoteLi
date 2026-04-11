@@ -1,5 +1,5 @@
 # app/schemas/user.py
-from pydantic import BaseModel, Field,EmailStr
+from pydantic import BaseModel, Field, EmailStr
 from uuid import UUID
 from typing import Optional
 

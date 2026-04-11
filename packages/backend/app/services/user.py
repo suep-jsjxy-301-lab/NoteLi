@@ -83,3 +83,21 @@ class UserService:
         hashed_password = get_password_hash(new_password)
         await UserRepository.change_password(user_id, hashed_password)
         return True
+    
+    @staticmethod
+    async def update_email(user_id: UUID, new_email: str) -> bool:
+        """更新用户邮箱"""
+        user = await UserRepository.get_user_by_id(user_id)
+        if not user:
+            return False
+        await UserRepository.change_email(user_id, new_email)
+        return True
+    
+    @staticmethod
+    async def update_phone(user_id: UUID, new_phone: Optional[str]) -> bool:
+        """更新用户手机号"""
+        user = await UserRepository.get_user_by_id(user_id)
+        if not user:
+            return False
+        await UserRepository.change_phone(user_id, new_phone)
+        return True

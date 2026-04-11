@@ -67,3 +67,19 @@ export const changePasswordApi = (new_password) => {
     }
   });
 }
+
+export const changeEmailApi = (new_email) => {
+  return request.post('/user/change-email', { new_email }, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+}
+
+export const changePhoneApi = (new_phone) => {
+  return request.post('/user/change-phone', { new_phone }, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+}
