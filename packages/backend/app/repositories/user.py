@@ -49,3 +49,9 @@ class UserRepository:
         """删除用户"""
         deleted_count = await User.filter(id=user_id).delete()
         return deleted_count > 0
+    
+    @staticmethod
+    async def change_password(user_id: UUID, new_hashed_password: str) -> bool:
+        """修改用户密码"""
+        updated_count = await User.filter(id=user_id).update(password=new_hashed_password)
+        return updated_count > 0

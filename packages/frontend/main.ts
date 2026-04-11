@@ -26,3 +26,16 @@ const pinia = createPinia()
 app.use(pinia)
 app.use(router)
 app.mount('#app')
+
+sessionStorage.setItem('session_flag', 'true');
+window.addEventListener('beforeunload', () => {
+  const isRefresh = !sessionStorage.getItem('session_flag');
+  
+  if (isRefresh) {
+    return;
+  }
+  
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+  localStorage.removeItem('user_info');
+});

@@ -183,29 +183,6 @@ async def logout(
     logger.info(f"用户 {current_user.username} 退出登录成功")
     return ok(message="退出登录成功")
 
-
-@auth_router.get(path="/me", response_model=ResponseModel[UserOut])
-async def read_users_me(
-    current_user: User = Depends(dependency=get_current_user),
-) -> ResponseModel[UserOut]:
-    """
-    获取当前登录用户的基本信息。
-
-    Args:
-        current_user: 由依赖注入的当前登录用户。
-
-    Returns:
-        统一响应包装，data 字段为 UserOut 模型（id、username、email、phone）。
-    """
-    return ok(
-        data=UserOut(
-            id=current_user.id,
-            username=current_user.username,
-            email=current_user.email,
-            phone=current_user.phone,
-        )
-    )
-
 @auth_router.post(path="/verify-password", response_model=ResponseModel[bool])
 async def verify_password(
     request: VerifyPasswordRequest,

@@ -81,6 +81,7 @@ const handleLogin = async () => {
         }
         message.type = 'error';
         console.error('登录出错:', error);
+        userStore.logout()
     } finally {
         isLoading.value = false;
     }

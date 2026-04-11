@@ -73,3 +73,13 @@ class UserService:
         if not user:
             return False
         return verify_password(password, user.password)
+    
+    @staticmethod
+    async def update_password(user_id: UUID, new_password: str) -> bool:
+        """更新用户密码"""
+        user = await UserRepository.get_user_by_id(user_id)
+        if not user:
+            return False
+        hashed_password = get_password_hash(new_password)
+        await UserRepository.change_password(user_id, hashed_password)
+        return True

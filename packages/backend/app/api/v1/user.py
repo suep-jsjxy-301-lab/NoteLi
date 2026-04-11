@@ -6,6 +6,7 @@ from app.dependencies import get_current_user
 from app.models.models import User
 from app.schemas.response import ResponseModel
 from app.schemas.user import UserIn, UserOut
+from app.schemas.request import ChangePasswordRequest
 from app.services.user import UserService
 from app.utils.response import fail_conflict, ok, ok_created
 
@@ -17,6 +18,16 @@ user_router = APIRouter(
 
 @user_router.post("/register", response_model=ResponseModel[UserOut])
 async def register_user(payload: UserIn) -> ResponseModel[UserOut]:
+    """
+    用户注册接口。
+    接收用户名、密码、邮箱和可选的手机号，创建新用户。
+    Args:
+        payload: 包含 username、password、email 和可选 phone 的请求体。
+    Returns:
+        统一响应包装，data 字段为 UserOut 模型，包含新用户信息。
+    Raises:
+        HTTPException: 409 用户名、邮箱或手机号已存在。
+    """
     if await UserService.get_user_by_username(payload.username):
         return fail_conflict(message="用户名已存在")
     if await UserService.get_user_by_email(payload.email):
@@ -48,6 +59,16 @@ async def register_user(payload: UserIn) -> ResponseModel[UserOut]:
 async def get_current_user_profile(
     current_user: User = Depends(get_current_user),
 ) -> ResponseModel[UserOut]:
+    """
+    获取当前登录用户的个人信息。
+    需要在请求头中携带有效的 Bearer token 进行身份验证。
+    Args:
+        current_user: 通过依赖注入获取当前用户对象。
+    Returns:
+        统一响应包装，data 字段为 UserOut 模型，包含当前用户信息。
+    Raises:
+        HTTPException: 401 如果 token 无效或用户不存在。
+    """
     return ok(
         data=UserOut(
             id=current_user.id,
@@ -57,3 +78,42 @@ async def get_current_user_profile(
         )
     )
 
+@user_router.post("/delete", response_model=ResponseModel[None])
+async def delete_current_user(
+    current_user: User = Depends(get_current_user),
+) -> ResponseModel[None]:
+    """
+    注销当前登录用户的账户。
+    需要在请求头中携带有效的 Bearer token 进行身份验证。
+    Args:
+        current_user: 通过依赖注入获取当前用户对象。
+    Returns:
+        成功消息。
+    Raises:
+        HTTPException: 401 如果 token 无效或用户不存在；400 如果删除失败。
+    """
+    success = await UserService.delete_user(current_user.id)
+    if not success:
+        return fail_conflict(message="用户删除失败")
+    return ok(message="用户删除成功")
+
+@user_router.post("/change-password", response_model=ResponseModel[bool])
+async def change_password(
+    new_password: ChangePasswordRequest,
+    current_user: User = Depends(get_current_user),
+) -> ResponseModel[bool]:
+    """
+    修改当前登录用户的密码。
+    需要在请求头中携带有效的 Bearer token 进行身份验证。
+    Args:
+        new_password: 包含新密码的请求体。
+        current_user: 通过依赖注入获取当前用户对象。
+    Returns:
+        统一响应包装，data 字段为布尔值，表示密码修改是否成功。
+    Raises:
+        HTTPException: 401 如果 token 无效或用户不存在；400 如果密码修改失败。
+    """
+    success = await UserService.update_password(current_user.id, new_password.new_password)
+    if not success:
+        return fail_conflict(message="密码修改失败")
+    return ok(data=True, message="密码修改成功")

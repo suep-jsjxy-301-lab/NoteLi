@@ -46,3 +46,24 @@ export const verify_password = (password) => {
     }
   });
 };
+
+export const logoutApi = (refresh_token, access_token) => {
+  return request.post('/auth/logout', { refresh_token }, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${access_token}`
+    }
+  });
+}
+
+export const deleteMeApi = () => {
+  return request.post('/user/delete');
+}
+
+export const changePasswordApi = (new_password) => {
+  return request.post('/user/change-password', { new_password }, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+}

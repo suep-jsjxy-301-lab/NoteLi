@@ -312,7 +312,7 @@
 import { reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../store/user'
-import { verify_password } from '../api/auth'
+import { verify_password, deleteMeApi, changePasswordApi, logoutApi } from '../api/auth'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -482,17 +482,28 @@ const handleConfirm = async () => {
           isLoading.value = false
           return
         }
-        if (formData.currentPassword !== '123456') {
+        const response = await verify_password(formData.currentPassword)
+        if (response.data.success !== true) {
           showMessage('当前密码错误', 'error')
           isLoading.value = false
           return
         }
+        const response2 = await changePasswordApi(formData.newPassword)
+        if(response2.data.success !== true) {
+          showMessage('密码修改失败，请稍后重试', 'error')
+          isLoading.value = false
+          return
+        }
         showMessage('密码修改成功，请重新登录', 'success')
+        await logoutApi(userStore.refresh_token, userStore.access_token)
+        userStore.logout()
+        router.push('/login')
         break
     }
     
     closeModal()
   } catch (error) {
+    console.error('修改信息出错:', error)
     showMessage('操作失败，请稍后重试', 'error')
   } finally {
     isLoading.value = false
@@ -524,14 +535,15 @@ const handleDeleteAccount = async () => {
   try {
     
     const response = await verify_password(deleteConfirmPassword.value)
-    console.log('密码验证结果:', response.data)
     if (response.data.success !== true) {
       alert('密码错误，无法注销账户')
       deleteLoading.value = false
       return
     }
     
+    await deleteMeApi();
     alert('账户已永久注销。')
+    await logoutApi(userStore.refresh_token,userStore.access_token)
     userStore.logout()
     closeDeleteModal()
     router.push('/login')
