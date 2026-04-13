@@ -2,6 +2,7 @@ import qs from 'qs';
 import request from './request';
 
 const UserApi = {
+    
     loginApi(username, password) {
         const formData = qs.stringify({ username, password });
         return request.post('/auth/token', formData, {

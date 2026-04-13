@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from app.dependencies import get_current_user
 from app.models.models import User
 from app.schemas.response import ResponseModel
-from app.schemas.user import CategoryIn, CategoryOut
+from app.schemas.category import CategoryIn, CategoryOut
 from app.services.category import CategoryService
 from app.schemas.request import CategoryNameRequest
 from app.utils.response import fail_conflict, ok, ok_created

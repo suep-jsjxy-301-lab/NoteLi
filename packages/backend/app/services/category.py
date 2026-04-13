@@ -1,5 +1,5 @@
 from typing import Optional
-from app.repositories.user import CategoryRepository
+from app.repositories.category import CategoryRepository
 from app.models.models import Category
 from uuid import UUID
 
@@ -17,7 +17,7 @@ class CategoryService:
         return category
 
     @staticmethod
-    async def get_categories_by_user_id(user_id: UUID) -> list[Category]:
+    async def get_categories_by_user(user_id: UUID) -> list[Category]:
         """根据用户ID获取分类列表"""
         return await CategoryRepository.get_categories_by_user_id(user_id)
 

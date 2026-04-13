@@ -8,14 +8,14 @@ from uuid import UUID
 
 class UserService:
     @staticmethod
-    async def authenticate(username: str, password: str) -> User | None:
+    async def authenticate(username: str, password: str) -> Optional[User]:
         user = await UserRepository.get_user_by_username(username)
         if user and verify_password(password, user.password):
             return user
         return None
 
     @staticmethod
-    async def get_user_by_id(user_id: str | UUID) -> User | None:
+    async def get_user_by_id(user_id: str | UUID) -> Optional[User]:
         """根据ID获取用户"""
         return await UserRepository.get_user_by_id(user_id)
 

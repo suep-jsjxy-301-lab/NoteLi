@@ -22,13 +22,13 @@
         <ul class="category-list">
           <li 
             v-for="cat in categories" 
-            :key="cat.id"
-            :class="{ active: activeCategory === cat.id }"
-            @click="activeCategory = cat.id"
+            :key="cat.category_name"
+            :class="{ active: activeCategory === cat.category_name }"
+            @click="activeCategory = cat.category_name"
           >
-            <span class="category-icon">{{ cat.icon }}</span>
-            <span class="category-name">{{ cat.name }}</span>
-            <span class="category-count">{{ getCategoryCount(cat.id) }}</span>
+            <span class="category-icon">{{ getCategoryIcon(cat.category_name) }}</span>
+            <span class="category-name">{{ cat.category_name }}</span>
+            <span class="category-count">{{ getCategoryCount(cat.category_name) }}</span>
           </li>
         </ul>
       </div>
@@ -245,8 +245,8 @@
             
             <div class="note-footer">
               <span class="note-category">
-                <span class="cat-icon">{{ getCategoryIcon(note.categoryId) }}</span>
-                {{ getCategoryName(note.categoryId) }}
+                <span class="cat-icon">{{ getCategoryIcon(note.category_name) }}</span>
+                {{ note.category_name }}
               </span>
               <div class="note-tags" v-if="note.tags && note.tags.length">
                 <span 
@@ -287,7 +287,7 @@
         </div>
         
         <div class="form-group">
-          <select v-model="editingNote.categoryId" class="category-select">
+          <select v-model="editingNote.category_id" class="category-select">
             <option v-for="cat in selectableCategories" :key="cat.id" :value="cat.id">
               {{ cat.icon }} {{ cat.name }}
             </option>
@@ -339,8 +339,8 @@
                 <span 
                   v-for="icon in iconOptions" 
                   :key="icon"
-                  :class="{ active: newCategory.icon === icon }"
-                  @click="newCategory.icon = icon"
+                  :class="{ active: newCategory.category_icon === icon }"
+                  @click="newCategory.category_icon = icon"
                 >
                   {{ icon }}
                 </span>
@@ -350,13 +350,13 @@
               <label>分类名称</label>
               <input 
                 type="text" 
-                v-model="newCategory.name" 
+                v-model="newCategory.category_name" 
                 placeholder="例如：旅行"
                 maxlength="10"
                 @keyup.enter="addCategory"
               />
             </div>
-            <button class="add-btn" @click="addCategory" :disabled="!newCategory.name.trim()">
+            <button class="add-btn" @click="addCategory" :disabled="!newCategory.category_name.trim()">
               + 添加分类
             </button>
           </div>
@@ -427,18 +427,15 @@ const iconOptions = [
 // ========== 分类数据 ==========
 // 系统默认分类（不可删除）
 const defaultCategories = [
-  { id: 'all', name: '全部笔记', icon: '📋', isDefault: true },
-  { id: 'work', name: '工作', icon: '💼', isDefault: true },
-  { id: 'personal', name: '个人', icon: '🏠', isDefault: true },
-  { id: 'study', name: '学习', icon: '📚', isDefault: true },
-  { id: 'idea', name: '想法', icon: '💡', isDefault: true },
-  { id: 'todo', name: '待办', icon: '✅', isDefault: true }
+  { category_name: '全部笔记', category_icon: 1, isDefault: true },
+  { category_name: '工作', category_icon: 2, isDefault: true },
+  { category_name: '个人', category_icon: 3, isDefault: true },
+  { category_name: '学习', category_icon: 4, isDefault: true },
+  { category_name: '想法', category_icon: 5, isDefault: true },
+  { category_name: '待办', category_icon: 6, isDefault: true }
 ]
-
 // 自定义分类（用户可增删改）
-const customCategories = ref([
-  { id: 'travel', name: '旅行', icon: '✈️', isDefault: false }
-])
+const customCategories = ref([])
 
 // 合并所有分类
 const categories = computed(() => {
@@ -447,7 +444,7 @@ const categories = computed(() => {
 
 // 可选分类（用于下拉选择，排除"全部笔记"）
 const selectableCategories = computed(() => {
-  return categories.value.filter(c => c.id !== 'all')
+  return categories.value.filter(c => c.category_name !== '全部笔记')
 })
 
 // 可编辑的分类（排除系统默认分类）
@@ -461,7 +458,7 @@ const notes = ref([
     id: 1,
     title: '项目会议记录',
     content: '讨论了下一阶段的产品功能规划，确定了技术选型和开发排期。需要在本周完成原型设计。',
-    categoryId: 'work',
+    category_name: '工作',
     tags: ['会议', '项目', '规划'],
     starred: true,
     createdAt: '2026-04-01T09:00:00',
@@ -471,7 +468,7 @@ const notes = ref([
     id: 2,
     title: 'Vue 3 学习笔记',
     content: 'Composition API 是 Vue 3 的核心特性，setup 函数是入口。ref 用于基本类型响应式，reactive 用于对象。',
-    categoryId: 'study',
+    category_name: '学习',
     tags: ['Vue', '前端', 'JavaScript'],
     starred: false,
     createdAt: '2026-04-05T15:20:00',
@@ -481,7 +478,7 @@ const notes = ref([
     id: 3,
     title: '购物清单',
     content: '牛奶、鸡蛋、面包、水果、咖啡豆、纸巾',
-    categoryId: 'personal',
+    category_name: '个人',
     tags: ['购物', '生活'],
     starred: false,
     createdAt: '2026-04-08T18:00:00',
@@ -491,7 +488,7 @@ const notes = ref([
     id: 4,
     title: '产品功能脑暴',
     content: '1. 暗黑模式\n2. 笔记分享功能\n3. Markdown 支持\n4. 云端同步\n5. 协作编辑',
-    categoryId: 'idea',
+    category_name: '工作',
     tags: ['产品', '功能', '脑暴'],
     starred: true,
     createdAt: '2026-04-03T11:30:00',
@@ -501,7 +498,7 @@ const notes = ref([
     id: 5,
     title: '周末计划',
     content: '周六上午健身，下午和朋友聚餐。周日整理房间，看一本书。',
-    categoryId: 'todo',
+    category_name: '待办',
     tags: ['周末', '计划'],
     starred: false,
     createdAt: '2026-04-09T08:00:00',
@@ -511,7 +508,7 @@ const notes = ref([
     id: 6,
     title: 'API 接口设计规范',
     content: 'RESTful API 设计原则：使用名词复数、HTTP 方法语义化、版本控制放在 URL 中。',
-    categoryId: 'work',
+    category_name: '工作',
     tags: ['API', '后端', '规范'],
     starred: false,
     createdAt: '2026-04-02T13:15:00',
@@ -521,7 +518,7 @@ const notes = ref([
     id: 7,
     title: '日本旅行攻略',
     content: '东京：浅草寺、晴空塔、秋叶原。大阪：环球影城、道顿堀。京都：清水寺、伏见稻荷大社。',
-    categoryId: 'travel',
+    category_name: '个人',
     tags: ['旅行', '日本', '攻略'],
     starred: true,
     createdAt: '2026-03-20T10:00:00',
@@ -530,7 +527,7 @@ const notes = ref([
 ])
 
 // ========== 状态管理 ==========
-const activeCategory = ref('all')
+const activeCategory = ref('全部笔记')
 const activeTag = ref('')
 const searchKeyword = ref('')
 const viewMode = ref('grid')
@@ -607,15 +604,15 @@ const editingNote = ref({
   id: null,
   title: '',
   content: '',
-  categoryId: 'personal',
+  category_name: '全部笔记',
   tags: []
 })
 const tagInput = ref('')
 
 // 新分类表单
 const newCategory = reactive({
-  name: '',
-  icon: '📋'
+  category_name: '',
+  category_icon: 1
 })
 
 // ========== 计算属性 ==========
@@ -647,8 +644,8 @@ const popularTags = computed(() => {
 const filteredNotes = computed(() => {
   let result = notes.value
   
-  if (activeCategory.value !== 'all') {
-    result = result.filter(n => n.categoryId === activeCategory.value)
+  if (activeCategory.value !== '全部笔记') {
+    result = result.filter(n => n.category_name === activeCategory.value)
   }
   
   if (activeTag.value) {
@@ -667,17 +664,14 @@ const filteredNotes = computed(() => {
 })
 
 // ========== 分类相关方法 ==========
-const getCategoryCount = (categoryId) => {
-  if (categoryId === 'all') return notes.value.length
-  return notes.value.filter(n => n.categoryId === categoryId).length
+const getCategoryIcon = (category_name) => {
+  const category = categories.value.find(c => c.category_name === category_name)
+  return category ? iconOptions[category.category_icon] : '📄'
 }
 
-const getCategoryName = (categoryId) => {
-  return categories.value.find(c => c.id === categoryId)?.name || '未分类'
-}
-
-const getCategoryIcon = (categoryId) => {
-  return categories.value.find(c => c.id === categoryId)?.icon || '📄'
+const getCategoryCount = (category_name) => {
+  if (category_name === '全部笔记') return notes.value.length
+  return notes.value.filter(n => n.category_name === category_name).length
 }
 
 const openCategoryManage = () => {
@@ -686,51 +680,68 @@ const openCategoryManage = () => {
 
 const closeCategoryManage = () => {
   showCategoryModal.value = false
-  newCategory.name = ''
-  newCategory.icon = '📋'
+  newCategory.category_name = ''
+  newCategory.category_icon = 1
 }
 
+const getCategoryList = async () => {
+  return await Api.category.getCategoriesApi()
+}
+
+const init_Categories = async () => {
+  try {
+    const response = await getCategoryList()
+    const categoryList = response?.data?.data;
+    customCategories.value = categoryList.map(cat => ({
+      category_name: cat.category_name,
+      category_icon: cat.category_icon || 1,
+      isDefault: false
+    }))
+  } catch (error) {
+    console.error('获取分类列表失败:', error)
+    alert('获取分类列表失败，请稍后重试')
+  }
+}
+init_Categories()
+
 const addCategory = () => {
-  const name = newCategory.name.trim()
-  if (!name) return
+  const category_name = newCategory.category_name.trim()
+  if (!category_name) return
   
   const exists = categories.value.some(
-    cat => cat.name.toLowerCase() === name.toLowerCase()
+    cat => cat.category_name.toLowerCase() === category_name.toLowerCase()
   )
   if (exists) {
     alert('分类名称已存在')
     return
   }
-  
-  const id = 'custom_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)
-  
-  customCategories.value.push({
-    id,
-    name: name,
-    icon: newCategory.icon,
-    isDefault: false
-  })
-  
-  newCategory.name = ''
-  newCategory.icon = '📋'
+  const response = Api.category.createCategoryApi({ category_icon: newCategory.category_icon, category_name: newCategory.category_name })
+  if(response?.data?.code !== 200) {
+    alert('分类添加失败，请稍后重试')
+  } else {
+    init_Categories()
+    alert('分类添加成功')
+  }
+  newCategory.category_name = ''
+  newCategory.category_icon = 1
 }
 
 const updateCategory = (category) => {
-  const name = category.name.trim()
-  if (!name) {
+  const category_name = category.category_name.trim()
+  if (!category_name) {
     alert('分类名称不能为空')
     return
   }
   
   const exists = categories.value.some(
-    cat => cat.id !== category.id && cat.name.toLowerCase() === name.toLowerCase()
+    cat => cat.id !== category.id && cat.category_name.toLowerCase() === category_name.toLowerCase()
   )
   if (exists) {
     alert('分类名称已存在')
     return
   }
   
-  category.name = name
+  category.category_name = category_name
   alert('分类已更新')
 }
 
@@ -741,7 +752,7 @@ const deleteCategory = (category) => {
     return
   }
   
-  if (confirm(`确定要删除分类"${category.name}"吗？`)) {
+  if (confirm(`确定要删除分类"${category.category_name}"吗？`)) {
     const index = customCategories.value.findIndex(c => c.id === category.id)
     if (index !== -1) {
       customCategories.value.splice(index, 1)
@@ -782,7 +793,7 @@ const createNewNote = () => {
     id: null,
     title: '',
     content: '',
-    categoryId: defaultCategoryId,
+    category_id: defaultCategoryId,
     tags: []
   }
   tagInput.value = ''
@@ -801,7 +812,7 @@ const closeDrawer = () => {
     id: null,
     title: '',
     content: '',
-    categoryId: 'personal',
+    category_id: 'personal',
     tags: []
   }
   tagInput.value = ''
