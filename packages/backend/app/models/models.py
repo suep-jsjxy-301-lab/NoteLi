@@ -11,7 +11,7 @@ class User(Model):
     email= fields.CharField(max_length=255, unique=True)
     phone= fields.CharField(max_length=16, unique=True, null=True)
     class Meta:
-        table = "user"
+        table = "users"
 
 class Category(Model):
     id = fields.IntField(pk=True)

@@ -1,25 +1,25 @@
 from typing import Optional
 from app.repositories.category import CategoryRepository
-from app.models.models import Category
+from app.models.models import Category, User
 from uuid import UUID
 
 class CategoryService:
     @staticmethod
-    async def create_category(user_id: UUID, category_id: int, category_name: str) -> Optional[Category]:
+    async def create_category(user: User, category_id: int, category_name: str) -> Optional[Category]:
         """创建新分类服务"""
-        if await CategoryRepository.get_category_by_user_and_category_name(user_id, category_name):
+        if await CategoryRepository.get_category_by_user_and_category_name(user, category_name):
             return None
 
         category = await CategoryRepository.create_category(
-            user_id=user_id, category_id=category_id, category_name=category_name
+            user=user, category_id=category_id, category_name=category_name
         )
 
         return category
 
     @staticmethod
-    async def get_categories_by_user(user_id: UUID) -> list[Category]:
-        """根据用户ID获取分类列表"""
-        return await CategoryRepository.get_categories_by_user_id(user_id)
+    async def get_categories_by_user(user: User) -> list[Category]:
+        """根据用户获取分类列表"""
+        return await CategoryRepository.get_categories_by_user_id(user)
 
     @staticmethod
     async def delete_category(id: int) -> bool:
@@ -40,11 +40,16 @@ class CategoryService:
         return True
     
     @staticmethod
-    async def get_category_by_user_and_category_name(user_id: UUID, category_name: str) -> Optional[Category]:
-        """根据用户ID和分类名称获取分类"""
-        return await CategoryRepository.get_category_by_user_and_category_name(user_id, category_name)
+    async def get_category_by_user_and_category_name(user: User, category_name: str) -> Optional[Category]:
+        """根据用户和分类名称获取分类"""
+        return await CategoryRepository.get_category_by_user_and_category_name(user, category_name)
 
     @staticmethod
-    async def delete_categories_by_user_id(user_id: UUID) -> None:
-        """根据用户ID删除所有分类"""
-        await CategoryRepository.delete_categories_by_user_id(user_id)
+    async def delete_categories_by_user_id(user: User) -> None:
+        """根据用户删除所有分类"""
+        await CategoryRepository.delete_categories_by_user_id(user)
+
+    @staticmethod
+    async def get_category_by_id(id: int) -> Optional[Category]:
+        """根据分类ID获取分类"""
+        return await CategoryRepository.get_category_by_id(id)

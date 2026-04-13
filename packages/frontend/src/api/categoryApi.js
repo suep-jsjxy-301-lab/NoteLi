@@ -10,16 +10,16 @@ const categoryApi = {
         });
     },
     
-    createCategoryApi(category_icon, category_name) {
-        return request.post('/category/create', { category_icon, category_name }, {
+    createCategoryApi(categoryData) {
+        return request.post('/category/create', categoryData, {
             headers: {
                 'Content-Type': 'application/json'
             }
         });
     },
     
-    deleteCategoryApi(category_name) {
-        return request.post('/category/delete', { category_name }, {
+    deleteCategoryApi(id) {
+        return request.post('/category/delete', { id }, {
             headers: {
                 'Content-Type': 'application/json'
             }

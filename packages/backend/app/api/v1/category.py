@@ -7,7 +7,7 @@ from app.models.models import User
 from app.schemas.response import ResponseModel
 from app.schemas.category import CategoryIn, CategoryOut
 from app.services.category import CategoryService
-from app.schemas.request import CategoryNameRequest
+from app.schemas.request import CategoryIDRequest
 from app.utils.response import fail_conflict, ok, ok_created
 
 Category_router = APIRouter(
@@ -30,11 +30,11 @@ async def create_category(
     Raises:
         HTTPException: 409 分类名称已存在。
     """
-    if await CategoryService.get_category_by_user_and_category_name(current_user.id, payload.category_name):
+    if await CategoryService.get_category_by_user_and_category_name(current_user, payload.category_name):
         return fail_conflict(message="分类名称已存在")
 
     category = await CategoryService.create_category(
-        user_id=current_user.id,
+        user=current_user,
         category_id=payload.category_id,
         category_name=payload.category_name,
     )
@@ -43,6 +43,7 @@ async def create_category(
 
     return ok_created(
         data=CategoryOut(
+            id=category.id,
             category_id=category.category_id,
             category_name=category.category_name,
         ),
@@ -60,9 +61,10 @@ async def list_categories(
     Returns:
         统一响应包装，data 字段为 CategoryOut 模型列表，包含用户的所有分类信息。
     """
-    categories = await CategoryService.get_categories_by_user(current_user.id)
+    categories = await CategoryService.get_categories_by_user(current_user)
     category_out_list = [
         CategoryOut(
+            id=category.id,
             category_id=category.category_id,
             category_name=category.category_name,
         )
@@ -72,22 +74,20 @@ async def list_categories(
 
 @Category_router.post("/delete", response_model=ResponseModel[None])
 async def delete_category(
-    category_name: CategoryNameRequest,
-    current_user: User = Depends(get_current_user)
+    id: CategoryIDRequest,
 ) -> ResponseModel[None]:
     """
     删除分类接口。
-    接收分类名称，删除对应分类。
+    接收分类ID，删除对应分类。
     Args:
-        category_name: 包含 category_name 的请求体。
+        id: 包含分类ID的请求体。
     Returns:
         统一响应包装，无 data 字段，包含删除成功消息。
     Raises:
         HTTPException: 404 分类不存在或不属于当前用户。
     """
-    category = await CategoryService.get_category_by_user_and_category_name(current_user.id, category_name.category_name)
+    category = await CategoryService.get_category_by_id(id.id)
     if category is None:
         return fail_conflict(message="分类不存在或不属于当前用户")
-
-    await CategoryService.delete_category(category)
+    await CategoryService.delete_category(id.id)
     return ok(message="分类删除成功")

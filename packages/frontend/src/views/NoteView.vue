@@ -369,9 +369,9 @@
             暂无自定义分类，点击上方添加
           </div>
           <ul class="editable-category-list">
-            <li v-for="cat in editableCategories" :key="cat.id">
+            <li v-for="cat in editableCategories" :key="cat.category_name">
               <span class="category-icon">
-                <select v-model="cat.icon" class="icon-select">
+                <select v-model="iconOptions[cat.category_icon]" class="icon-select">
                   <option v-for="icon in iconOptions" :key="icon" :value="icon">
                     {{ icon }}
                   </option>
@@ -379,7 +379,7 @@
               </span>
               <input 
                 type="text" 
-                v-model="cat.name" 
+                v-model="cat.category_name" 
                 class="category-name-input"
                 maxlength="10"
               />
@@ -391,7 +391,7 @@
                   class="delete-btn-small" 
                   @click="deleteCategory(cat)" 
                   title="删除分类"
-                  :disabled="getCategoryCount(cat.id) > 0"
+                  :disabled="getCategoryCount(cat.category_name) > 0"
                 >
                   🗑️
                 </button>
@@ -612,7 +612,7 @@ const tagInput = ref('')
 // 新分类表单
 const newCategory = reactive({
   category_name: '',
-  category_icon: 1
+  category_icon: '📄'
 })
 
 // ========== 计算属性 ==========
@@ -693,8 +693,9 @@ const init_Categories = async () => {
     const response = await getCategoryList()
     const categoryList = response?.data?.data;
     customCategories.value = categoryList.map(cat => ({
+      id: cat.category_id,
       category_name: cat.category_name,
-      category_icon: cat.category_icon || 1,
+      category_icon: cat.category_id,
       isDefault: false
     }))
   } catch (error) {
@@ -704,7 +705,7 @@ const init_Categories = async () => {
 }
 init_Categories()
 
-const addCategory = () => {
+const addCategory = async () => {
   const category_name = newCategory.category_name.trim()
   if (!category_name) return
   
@@ -715,11 +716,22 @@ const addCategory = () => {
     alert('分类名称已存在')
     return
   }
-  const response = Api.category.createCategoryApi({ category_icon: newCategory.category_icon, category_name: newCategory.category_name })
-  if(response?.data?.code !== 200) {
+
+  const categoryData = {
+    category_id: iconOptions.findIndex(icon => icon === newCategory.category_icon)+1,
+    category_name: newCategory.category_name
+  }
+
+  const response = await Api.category.createCategoryApi(categoryData)
+  if(response.success === false) {
     alert('分类添加失败，请稍后重试')
   } else {
-    init_Categories()
+    customCategories.value.push({
+      id: response?.data?.data.id,
+      category_name: categoryData.category_name,
+      category_icon: categoryData.category_id,
+      isDefault: false
+    })
     alert('分类添加成功')
   }
   newCategory.category_name = ''
@@ -734,7 +746,7 @@ const updateCategory = (category) => {
   }
   
   const exists = categories.value.some(
-    cat => cat.id !== category.id && cat.category_name.toLowerCase() === category_name.toLowerCase()
+    cat => cat.category_name.toLowerCase() === category.category_name.toLowerCase()
   )
   if (exists) {
     alert('分类名称已存在')
@@ -746,19 +758,24 @@ const updateCategory = (category) => {
 }
 
 const deleteCategory = (category) => {
-  const noteCount = getCategoryCount(category.id)
+  const noteCount = getCategoryCount(category.category_name)
   if (noteCount > 0) {
     alert(`无法删除：该分类下还有 ${noteCount} 篇笔记，请先移动或删除这些笔记`)
     return
   }
   
   if (confirm(`确定要删除分类"${category.category_name}"吗？`)) {
-    const index = customCategories.value.findIndex(c => c.id === category.id)
+    const response = Api.category.deleteCategoryApi(category.id)
+    if(response.sccess === false) {
+      alert('分类删除失败，请稍后重试')
+      return
+    }
+    const index = customCategories.value.findIndex(c => c.category_name === category.category_name)
     if (index !== -1) {
       customCategories.value.splice(index, 1)
       
-      if (activeCategory.value === category.id) {
-        activeCategory.value = 'all'
+      if (activeCategory.value === category.category_name) {
+        activeCategory.value = '全部笔记'
       }
     }
   }

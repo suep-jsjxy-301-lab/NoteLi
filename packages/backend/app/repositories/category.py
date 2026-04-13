@@ -1,18 +1,17 @@
 from typing import Optional
-from app.models.models import Category
-from uuid import UUID
+from app.models.models import Category, User
 
 class CategoryRepository:
     @staticmethod
-    async def create_category(user_id: UUID, category_id: int, category_name: str) -> Category:
+    async def create_category(user: User, category_id: int, category_name: str) -> Category:
         """创建新分类"""
-        category = await Category.create(user_id=user_id, category_id=category_id, category_name=category_name)
+        category = await Category.create(user=user, category_id=category_id, category_name=category_name)
         return category
 
     @staticmethod
-    async def get_categories_by_user_id(user_id: UUID) -> list[Category]:
-        """根据用户ID获取分类列表"""
-        categories = await Category.filter(user_id=user_id).all()
+    async def get_categories_by_user_id(user: User) -> list[Category]:
+        """根据用户获取分类列表"""
+        categories = await Category.filter(user=user).all()
         return categories
 
     @staticmethod
@@ -28,9 +27,9 @@ class CategoryRepository:
         return updated_count > 0
     
     @staticmethod
-    async def get_category_by_user_and_category_name(user_id: UUID, category_name: str) -> Optional[Category]:
-        """根据用户ID和分类名称获取分类"""
-        category = await Category.filter(user_id=user_id, category_name=category_name).first()
+    async def get_category_by_user_and_category_name(user: User, category_name: str) -> Optional[Category]:
+        """根据用户和分类名称获取分类"""
+        category = await Category.filter(user=user, category_name=category_name).first()
         return category
     
     @staticmethod
@@ -40,9 +39,9 @@ class CategoryRepository:
         return category
     
     @staticmethod
-    async def delete_categories_by_user_id(user_id: UUID) -> None:
-        """根据用户ID删除所有分类"""
-        await Category.filter(user_id=user_id).delete()
+    async def delete_categories_by_user_id(user: User) -> None:
+        """根据用户删除所有分类"""
+        await Category.filter(user=user).delete()
 
     @staticmethod
     async def update_category_id(id: int, new_category_id: int) -> bool:

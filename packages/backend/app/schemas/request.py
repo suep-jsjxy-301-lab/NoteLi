@@ -16,5 +16,5 @@ class ChangePhoneRequest(BaseModel):
 class ChangeUsernameRequest(BaseModel):
     new_username: str = Field(default=..., min_length=3, max_length=64)
 
-class CategoryNameRequest(BaseModel):
-    category_name: str = Field(default=..., max_length=6)
+class CategoryIDRequest(BaseModel):
+    id: int = Field(default=...)
