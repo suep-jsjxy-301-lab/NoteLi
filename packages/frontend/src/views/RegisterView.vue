@@ -116,7 +116,7 @@
 <script setup>
 import { reactive, ref, computed, watch, onUnmounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { registerApi } from '@/api/auth'
+import Api from '@/api/api'
 
 const router = useRouter()
 let redirectTimerId = null
@@ -265,7 +265,7 @@ const handleRegister = async () => {
     isLoading.value = true
 
     try {
-        const response = await registerApi({
+        const response = await Api.user.registerApi({
             username: form.username.trim(),
             password: form.password,
             email: form.email.trim(),

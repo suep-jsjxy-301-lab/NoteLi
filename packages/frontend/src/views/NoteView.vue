@@ -411,7 +411,7 @@
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
-import { logoutApi } from '@/api/auth'
+import Api from '@/api/api'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -581,7 +581,7 @@ const handleLogout = () => {
   console.log('退出登录')
   if (confirm('确定要退出登录吗？')) {
     alert('已退出登录')
-    logoutApi(userStore.refresh_token,userStore.access_token)
+    Api.user.logoutApi(userStore.refresh_token, userStore.access_token)
     userStore.logout()
     router.push('/login')
   }

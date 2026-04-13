@@ -312,7 +312,7 @@
 import { reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../store/user'
-import { verify_password, deleteMeApi, changePasswordApi, changeEmailApi, changePhoneApi, logoutApi } from '../api/auth'
+import Api from '@/api/api'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -437,7 +437,14 @@ const handleConfirm = async () => {
           isLoading.value = false
           return
         }
+        const response_by_changeName = await Api.user.changeUserNameApi(formData.username)
+        if (response_by_changeName.data.success !== true) {
+          showMessage('用户名修改失败，请稍后重试', 'error')
+          isLoading.value = false
+          return
+        }
         userInfo.username = formData.username
+        userStore.updateUserInfo({ username: userInfo.username })
         showMessage('用户名修改成功', 'success')
         break
         
@@ -452,7 +459,7 @@ const handleConfirm = async () => {
           isLoading.value = false
           return
         }
-        const response_by_changeEmail = await changeEmailApi(formData.email)
+        const response_by_changeEmail = await Api.user.changeEmailApi(formData.email)
         if (response_by_changeEmail.data.success !== true) {
           showMessage('邮箱修改失败，请稍后重试', 'error')
           isLoading.value = false
@@ -469,7 +476,7 @@ const handleConfirm = async () => {
           isLoading.value = false
           return
         }
-        const response_by_changePhone = await changePhoneApi(formData.phone)
+        const response_by_changePhone = await Api.user.changePhoneApi(formData.phone)
         if (response_by_changePhone.data.success !== true) {
           showMessage('电话修改失败，请稍后重试', 'error')
           isLoading.value = false
@@ -496,20 +503,20 @@ const handleConfirm = async () => {
           isLoading.value = false
           return
         }
-        const response_by_verifyPassword = await verify_password(formData.currentPassword)
+        const response_by_verifyPassword = await Api.user.verify_passwordApi(formData.currentPassword)
         if (response_by_verifyPassword.data.success !== true) {
           showMessage('当前密码错误', 'error')
           isLoading.value = false
           return
         }
-        const response_by_changePassword = await changePasswordApi(formData.newPassword)
+        const response_by_changePassword = await Api.user.changePasswordApi(formData.newPassword)
         if(response_by_changePassword.data.success !== true) {
           showMessage('密码修改失败，请稍后重试', 'error')
           isLoading.value = false
           return
         }
         showMessage('密码修改成功，请重新登录', 'success')
-        await logoutApi(userStore.refresh_token, userStore.access_token)
+        await Api.user.logoutApi(userStore.refresh_token, userStore.access_token)
         userStore.logout()
         router.push('/login')
         break
@@ -547,16 +554,16 @@ const handleDeleteAccount = async () => {
   deleteLoading.value = true
   try {
     
-    const response = await verify_password(deleteConfirmPassword.value)
+    const response = await Api.user.verify_passwordApi(deleteConfirmPassword.value)
     if (response.data.success !== true) {
       alert('密码错误，无法注销账户')
       deleteLoading.value = false
       return
     }
     
-    await deleteMeApi();
+    await Api.user.deleteMeApi();
     alert('账户已永久注销。')
-    await logoutApi(userStore.refresh_token,userStore.access_token)
+    await Api.user.logoutApi(userStore.refresh_token,userStore.access_token)
     userStore.logout()
     closeDeleteModal()
     router.push('/login')

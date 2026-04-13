@@ -12,3 +12,9 @@ class ChangeEmailRequest(BaseModel):
 
 class ChangePhoneRequest(BaseModel):
     new_phone: Optional[str] = Field(default=None, max_length=16)
+
+class ChangeUsernameRequest(BaseModel):
+    new_username: str = Field(default=..., min_length=3, max_length=64)
+
+class CategoryNameRequest(BaseModel):
+    category_name: str = Field(default=..., max_length=6)

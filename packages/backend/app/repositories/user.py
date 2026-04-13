@@ -67,3 +67,9 @@ class UserRepository:
         """修改用户手机号"""
         updated_count = await User.filter(id=user_id).update(phone=new_phone)
         return updated_count > 0
+    
+    @staticmethod
+    async def change_username(user_id: UUID, new_username: str) -> bool:
+        """修改用户名"""
+        updated_count = await User.filter(id=user_id).update(username=new_username)
+        return updated_count > 0

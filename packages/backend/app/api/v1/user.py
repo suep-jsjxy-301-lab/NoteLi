@@ -6,7 +6,7 @@ from app.dependencies import get_current_user
 from app.models.models import User
 from app.schemas.response import ResponseModel
 from app.schemas.user import UserIn, UserOut
-from app.schemas.request import ChangePasswordRequest, ChangeEmailRequest, ChangePhoneRequest
+from app.schemas.request import ChangePasswordRequest, ChangeEmailRequest, ChangePhoneRequest, ChangeUsernameRequest
 from app.services.user import UserService
 from app.utils.response import fail_conflict, ok, ok_created
 
@@ -163,3 +163,26 @@ async def change_phone(
     if not success:
         return fail_conflict(message="手机号修改失败")
     return ok(data=True, message="手机号修改成功")
+
+@user_router.post("/change-username", response_model=ResponseModel[bool])
+async def change_username(
+    new_username: ChangeUsernameRequest,
+    current_user: User = Depends(get_current_user),
+) -> ResponseModel[bool]:
+    """
+    修改当前登录用户的用户名。
+    需要在请求头中携带有效的 Bearer token 进行身份验证。
+    Args:
+        new_username: 包含新用户名的请求体。
+        current_user: 通过依赖注入获取当前用户对象。
+    Returns:
+        统一响应包装，data 字段为布尔值，表示用户名修改是否成功。
+    Raises:
+        HTTPException: 401 如果 token 无效或用户不存在；400 如果用户名修改失败。
+    """
+    if await UserService.get_user_by_username(new_username.new_username):
+        return fail_conflict(message="用户名已存在")
+    success = await UserService.update_username(current_user.id, new_username.new_username)
+    if not success:
+        return fail_conflict(message="用户名修改失败")
+    return ok(data=True, message="用户名修改成功")

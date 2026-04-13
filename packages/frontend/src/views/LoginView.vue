@@ -31,7 +31,7 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
-import { loginApi, getMeApi } from '@/api/auth'
+import Api from '@/api/api'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -51,7 +51,7 @@ const handleLogin = async () => {
     message.text = '';
 
     try {
-        const response = await loginApi(form.username, form.password);
+        const response = await Api.user.loginApi(form.username, form.password);
         const tokenData = response?.data?.data;
         const access_token = tokenData?.access_token;
         const refresh_token = tokenData?.refresh_token;
@@ -60,7 +60,7 @@ const handleLogin = async () => {
             throw new Error('登录响应缺少 token 信息');
         }
         
-        const meResponse = await getMeApi(access_token);
+        const meResponse = await Api.user.getMeApi(access_token);
         const me = meResponse?.data?.data || {};
         userStore.login({
             access_token: access_token,

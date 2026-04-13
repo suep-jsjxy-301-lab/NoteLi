@@ -101,3 +101,12 @@ class UserService:
             return False
         await UserRepository.change_phone(user_id, new_phone)
         return True
+    
+    @staticmethod
+    async def update_username(user_id: UUID, new_username: str) -> bool:
+        """更新用户名"""
+        user = await UserRepository.get_user_by_id(user_id)
+        if not user:
+            return False
+        await UserRepository.change_username(user_id, new_username)
+        return True
