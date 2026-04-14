@@ -1,7 +1,7 @@
 from typing import Optional
 from app.repositories.category import CategoryRepository
 from app.models.models import Category, User
-from uuid import UUID
+from app.schemas.category import CategoryOut
 
 class CategoryService:
     @staticmethod
@@ -31,13 +31,19 @@ class CategoryService:
         return True
     
     @staticmethod
-    async def update_category(id: int, new_category_name: str) -> bool:
-        """更新分类名称"""
+    async def update_category(id: int, new_category_id: int, new_category_name: str) -> CategoryOut:
+        """更新分类"""
+        isUpdate = await CategoryRepository.update_category(
+            id=id, new_category_id=new_category_id, new_category_name=new_category_name
+        )
+        if not isUpdate:
+            return None
         category = await CategoryRepository.get_category_by_id(id)
-        if not category:
-            return False
-        await CategoryRepository.update_category_name(id, new_category_name)
-        return True
+        return CategoryOut(
+            id=category.id,
+            category_id=category.category_id,
+            category_name=category.category_name,
+        )
     
     @staticmethod
     async def get_category_by_user_and_category_name(user: User, category_name: str) -> Optional[Category]:

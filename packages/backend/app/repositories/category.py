@@ -1,5 +1,6 @@
 from typing import Optional
 from app.models.models import Category, User
+from app.schemas.category import CategoryOut
 
 class CategoryRepository:
     @staticmethod
@@ -53,4 +54,13 @@ class CategoryRepository:
     async def update_category_name(id: int, new_category_name: str) -> bool:
         """更新分类名称"""
         updated_count = await Category.filter(id=id).update(category_name=new_category_name)
+        return updated_count > 0
+    
+    @staticmethod
+    async def update_category(id: int, new_category_id: int, new_category_name: str) -> bool:
+        """更新分类"""
+        updated_count = await Category.filter(id=id).update(
+            category_id=new_category_id,
+            category_name=new_category_name
+        )
         return updated_count > 0

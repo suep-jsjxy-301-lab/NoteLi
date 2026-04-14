@@ -288,8 +288,8 @@
         
         <div class="form-group">
           <select v-model="editingNote.category_id" class="category-select">
-            <option v-for="cat in selectableCategories" :key="cat.id" :value="cat.id">
-              {{ cat.icon }} {{ cat.name }}
+            <option v-for="cat in selectableCategories" :key="cat.category_icon" :value="getCategoryIcon(cat.category_name)">
+              {{ getCategoryIcon(cat.category_name) }} {{ cat.category_name }}
             </option>
           </select>
         </div>
@@ -371,20 +371,20 @@
           <ul class="editable-category-list">
             <li v-for="cat in editableCategories" :key="cat.category_name">
               <span class="category-icon">
-                <select v-model="iconOptions[cat.category_icon]" class="icon-select">
-                  <option v-for="icon in iconOptions" :key="icon" :value="icon">
+                <select v-model="editingCopies[cat.category_name].category_icon" class="icon-select">
+                  <option v-for="(icon, index) in iconOptions" :key="icon" :value="index+1">
                     {{ icon }}
                   </option>
                 </select>
               </span>
               <input 
                 type="text" 
-                v-model="cat.category_name" 
+                v-model="editingCopies[cat.category_name].category_name" 
                 class="category-name-input"
                 maxlength="10"
               />
               <div class="category-actions">
-                <button class="save-btn-small" @click="updateCategory(cat)" title="保存修改">
+                <button class="save-btn-small" @click="updateCategory(cat, editingCopies[cat.category_name])" title="保存修改">
                   💾
                 </button>
                 <button 
@@ -451,6 +451,28 @@ const selectableCategories = computed(() => {
 const editableCategories = computed(() => {
   return customCategories.value
 })
+
+// 副本数据（独立于原始数据）
+const editingCopies = reactive({})
+
+const initCopies = () => {
+  // 清空旧数据
+  Object.keys(editingCopies).forEach(key => {
+    delete editingCopies[key]
+  })
+  
+  // 重新填充，以 category_name 为键
+  editableCategories.value.forEach(cat => {
+    editingCopies[cat.category_name] = {
+      category_name: cat.category_name,
+      category_icon: cat.category_icon
+    }
+  })
+}
+
+watch(editableCategories, () => {
+  initCopies()
+}, { deep: true })
 
 // ========== 笔记数据 ==========
 const notes = ref([
@@ -666,7 +688,7 @@ const filteredNotes = computed(() => {
 // ========== 分类相关方法 ==========
 const getCategoryIcon = (category_name) => {
   const category = categories.value.find(c => c.category_name === category_name)
-  return category ? iconOptions[category.category_icon] : '📄'
+  return category ? iconOptions[category.category_icon-1] : '📄'
 }
 
 const getCategoryCount = (category_name) => {
@@ -681,7 +703,7 @@ const openCategoryManage = () => {
 const closeCategoryManage = () => {
   showCategoryModal.value = false
   newCategory.category_name = ''
-  newCategory.category_icon = 1
+  newCategory.category_icon = '📄'
 }
 
 const getCategoryList = async () => {
@@ -693,7 +715,7 @@ const init_Categories = async () => {
     const response = await getCategoryList()
     const categoryList = response?.data?.data;
     customCategories.value = categoryList.map(cat => ({
-      id: cat.category_id,
+      id: cat.id,
       category_name: cat.category_name,
       category_icon: cat.category_id,
       isDefault: false
@@ -735,25 +757,38 @@ const addCategory = async () => {
     alert('分类添加成功')
   }
   newCategory.category_name = ''
-  newCategory.category_icon = 1
+  newCategory.category_icon = '📄'
 }
 
-const updateCategory = (category) => {
-  const category_name = category.category_name.trim()
-  if (!category_name) {
+const updateCategory = async (categoryId, categoryData) => {
+  console.log(categoryId)
+  if (!categoryData.category_name) {
     alert('分类名称不能为空')
     return
   }
   
+  const category = {
+    category_id: categoryData.category_icon,
+    category_name: categoryData.category_name.trim()
+  }
+
   const exists = categories.value.some(
-    cat => cat.category_name.toLowerCase() === category.category_name.toLowerCase()
+    cat => cat.category_name.toLowerCase() === categoryData.category_name.toLowerCase()
   )
   if (exists) {
     alert('分类名称已存在')
     return
   }
-  
-  category.category_name = category_name
+  const response = await Api.category.updateCategoryApi(categoryId.id, category)
+  if(response.success === false) {
+    alert('分类更新失败，请稍后重试')
+    return
+  }
+  const index = customCategories.value.findIndex(c => c.id === categoryId.id)
+  if (index !== -1) {
+    customCategories.value[index].category_name = response?.data?.data.category_name
+    customCategories.value[index].category_icon = response?.data?.data.category_id
+  }
   alert('分类已更新')
 }
 

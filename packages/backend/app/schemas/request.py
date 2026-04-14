@@ -17,4 +17,4 @@ class ChangeUsernameRequest(BaseModel):
     new_username: str = Field(default=..., min_length=3, max_length=64)
 
 class CategoryIDRequest(BaseModel):
-    id: int = Field(default=...)
+    id: int = Field(default=..., gt=0)

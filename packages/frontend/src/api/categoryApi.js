@@ -24,8 +24,15 @@ const categoryApi = {
                 'Content-Type': 'application/json'
             }
         });
-    }
+    },
 
+    updateCategoryApi(id, categoryData) {
+        return request.post(`/category/update/${id}`, categoryData , {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    }
 };
 
 export default categoryApi;

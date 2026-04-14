@@ -91,3 +91,40 @@ async def delete_category(
         return fail_conflict(message="分类不存在或不属于当前用户")
     await CategoryService.delete_category(id.id)
     return ok(message="分类删除成功")
+
+@Category_router.post("/update/{category_id}", response_model=ResponseModel[CategoryOut])
+async def update_category(
+    category_id: int,
+    payload: CategoryIn,
+) -> ResponseModel[CategoryOut]:
+    """
+    更新分类接口。
+    接收分类ID和新的分类信息，更新对应分类。
+    Args:
+        category_id: 分类ID。
+        payload: 包含新的 category_id 和 category_name 的请求体。
+    Returns:
+        统一响应包装，data 字段为 CategoryOut 模型，包含更新后的分类
+    Raises:        
+        HTTPException: 404 分类不存在或不属于当前用户。
+    """
+    category = await CategoryService.get_category_by_id(category_id)
+    if category is None:
+        return fail_conflict(message="分类不存在或不属于当前用户")
+
+    updated_category = await CategoryService.update_category(
+        id=category_id,
+        new_category_id=payload.category_id,
+        new_category_name=payload.category_name,
+    )
+    if updated_category is None:
+        return fail_conflict(message="分类更新失败")
+
+    return ok(
+        data=CategoryOut(
+            id=updated_category.id,
+            category_id=updated_category.category_id,
+            category_name=updated_category.category_name,
+        ),
+        message="分类更新成功",
+    )
