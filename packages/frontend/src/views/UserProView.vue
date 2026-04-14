@@ -317,7 +317,7 @@ import Api from '@/api/api'
 const router = useRouter()
 const userStore = useUserStore()
 
-// ========== 用户信息（模拟数据） ==========
+// ========== 用户信息 ==========
 const userInfo = reactive({
   id: userStore.userInfo.id,
   username: userStore.userInfo.username,

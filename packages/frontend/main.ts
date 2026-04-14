@@ -27,14 +27,19 @@ app.use(pinia)
 app.use(router)
 app.mount('#app')
 
-sessionStorage.setItem('session_flag', 'true');
+let isPageVisible = true;
+
+document.addEventListener('visibilitychange', () => {
+  isPageVisible = !document.hidden;
+});
+
 window.addEventListener('beforeunload', () => {
-  const isRefresh = !sessionStorage.getItem('session_flag');
-  
-  if (isRefresh) {
+  // 如果页面不可见，说明是关闭；否则可能是刷新
+  if (isPageVisible) {
     return;
   }
   
+  console.log('❌ 标签页关闭，清空登录状态');
   localStorage.removeItem('access_token');
   localStorage.removeItem('refresh_token');
   localStorage.removeItem('user_info');
