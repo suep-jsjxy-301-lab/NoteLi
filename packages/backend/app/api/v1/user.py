@@ -7,7 +7,7 @@ from app.models.models import User
 from app.schemas.response import ResponseModel
 from app.schemas.user import UserIn, UserOut
 from app.schemas.request import ChangePasswordRequest, ChangeEmailRequest, ChangePhoneRequest, ChangeUsernameRequest
-from app.services.user import UserService
+from app.services import *
 from app.utils.response import fail_conflict, ok, ok_created
 
 user_router = APIRouter(
@@ -28,14 +28,14 @@ async def register_user(payload: UserIn) -> ResponseModel[UserOut]:
     Raises:
         HTTPException: 409 用户名、邮箱或手机号已存在。
     """
-    if await UserService.get_user_by_username(payload.username):
+    if await Service.user.get_user_by_username(payload.username):
         return fail_conflict(message="用户名已存在")
-    if await UserService.get_user_by_email(payload.email):
+    if await Service.user.get_user_by_email(payload.email):
         return fail_conflict(message="邮箱已存在")
-    if payload.phone and await UserService.get_user_by_phone(payload.phone):
+    if payload.phone and await Service.user.get_user_by_phone(payload.phone):
         return fail_conflict(message="手机号已存在")
 
-    user = await UserService.create_user(
+    user = await Service.user.create_user(
         username=payload.username,
         password=payload.password,
         email=payload.email,
@@ -92,7 +92,7 @@ async def delete_current_user(
     Raises:
         HTTPException: 401 如果 token 无效或用户不存在；400 如果删除失败。
     """
-    success = await UserService.delete_user(current_user.id)
+    success = await Service.user.delete_user(current_user.id)
     if not success:
         return fail_conflict(message="用户删除失败")
     return ok(message="用户删除成功")
@@ -113,7 +113,7 @@ async def change_password(
     Raises:
         HTTPException: 401 如果 token 无效或用户不存在；400 如果密码修改失败。
     """
-    success = await UserService.update_password(current_user.id, new_password.new_password)
+    success = await Service.user.update_password(current_user.id, new_password.new_password)
     if not success:
         return fail_conflict(message="密码修改失败")
     return ok(data=True, message="密码修改成功")
@@ -134,9 +134,9 @@ async def change_email(
     Raises:
         HTTPException: 401 如果 token 无效或用户不存在；400 如果邮箱修改失败
     """
-    if await UserService.get_user_by_email(new_email.new_email):
+    if await Service.user.get_user_by_email(new_email.new_email):
         return fail_conflict(message="邮箱已存在")
-    success = await UserService.update_email(current_user.id, new_email.new_email)
+    success = await Service.user.update_email(current_user.id, new_email.new_email)
     if not success:
         return fail_conflict(message="邮箱修改失败")
     return ok(data=True, message="邮箱修改成功")
@@ -157,9 +157,9 @@ async def change_phone(
     Raises:
         HTTPException: 401 如果 token 无效或用户不存在；400 如果手机号修改失败
     """
-    if await UserService.get_user_by_phone(new_phone.new_phone):
+    if await Service.user.get_user_by_phone(new_phone.new_phone):
         return fail_conflict(message="手机号已存在")
-    success = await UserService.update_phone(current_user.id, new_phone.new_phone)
+    success = await Service.user.update_phone(current_user.id, new_phone.new_phone)
     if not success:
         return fail_conflict(message="手机号修改失败")
     return ok(data=True, message="手机号修改成功")
@@ -180,9 +180,9 @@ async def change_username(
     Raises:
         HTTPException: 401 如果 token 无效或用户不存在；400 如果用户名修改失败。
     """
-    if await UserService.get_user_by_username(new_username.new_username):
+    if await Service.user.get_user_by_username(new_username.new_username):
         return fail_conflict(message="用户名已存在")
-    success = await UserService.update_username(current_user.id, new_username.new_username)
+    success = await Service.user.update_username(current_user.id, new_username.new_username)
     if not success:
         return fail_conflict(message="用户名修改失败")
     return ok(data=True, message="用户名修改成功")

@@ -14,7 +14,7 @@ router = APIRouter(
 router.include_router(chat.auth_router)
 router.include_router(auth.auth_router)
 router.include_router(user.user_router)
-router.include_router(category.Category_router)
+router.include_router(category.category_router)
 
 
 __all__: list[str] = ["router"]

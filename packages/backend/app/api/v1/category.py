@@ -6,16 +6,16 @@ from app.dependencies import get_current_user
 from app.models.models import User
 from app.schemas.response import ResponseModel
 from app.schemas.category import CategoryIn, CategoryOut
-from app.services.category import CategoryService
+from app.services import *
 from app.schemas.request import CategoryIDRequest
 from app.utils.response import fail_conflict, ok, ok_created
 
-Category_router = APIRouter(
+category_router = APIRouter(
     prefix="/category",
     tags=["分类API"],
 )
 
-@Category_router.post("/create", response_model=ResponseModel[CategoryOut])
+@category_router.post("/create", response_model=ResponseModel[CategoryOut])
 async def create_category(
     payload: CategoryIn,
     current_user: User = Depends(get_current_user)
@@ -30,10 +30,10 @@ async def create_category(
     Raises:
         HTTPException: 409 分类名称已存在。
     """
-    if await CategoryService.get_category_by_user_and_category_name(current_user, payload.category_name):
+    if await Service.category.get_category_by_user_and_category_name(current_user, payload.category_name):
         return fail_conflict(message="分类名称已存在")
 
-    category = await CategoryService.create_category(
+    category = await Service.category.create_category(
         user=current_user,
         category_id=payload.category_id,
         category_name=payload.category_name,
@@ -50,7 +50,7 @@ async def create_category(
         message="分类创建成功",
     )
 
-@Category_router.get("/list", response_model=ResponseModel[list[CategoryOut]])
+@category_router.get("/list", response_model=ResponseModel[list[CategoryOut]])
 async def list_categories(
     current_user: User = Depends(get_current_user)
 ) -> ResponseModel[list[CategoryOut]]:
@@ -61,7 +61,7 @@ async def list_categories(
     Returns:
         统一响应包装，data 字段为 CategoryOut 模型列表，包含用户的所有分类信息。
     """
-    categories = await CategoryService.get_categories_by_user(current_user)
+    categories = await Service.category.get_categories_by_user(current_user)
     category_out_list = [
         CategoryOut(
             id=category.id,
@@ -72,7 +72,7 @@ async def list_categories(
     ]
     return ok(data=category_out_list, message="获取分类列表成功")
 
-@Category_router.post("/delete", response_model=ResponseModel[None])
+@category_router.post("/delete", response_model=ResponseModel[None])
 async def delete_category(
     id: CategoryIDRequest,
 ) -> ResponseModel[None]:
@@ -86,13 +86,13 @@ async def delete_category(
     Raises:
         HTTPException: 404 分类不存在或不属于当前用户。
     """
-    category = await CategoryService.get_category_by_id(id.id)
+    category = await Service.category.get_category_by_id(id.id)
     if category is None:
         return fail_conflict(message="分类不存在或不属于当前用户")
-    await CategoryService.delete_category(id.id)
+    await Service.category.delete_category(id.id)
     return ok(message="分类删除成功")
 
-@Category_router.post("/update/{category_id}", response_model=ResponseModel[CategoryOut])
+@category_router.post("/update/{category_id}", response_model=ResponseModel[CategoryOut])
 async def update_category(
     category_id: int,
     payload: CategoryIn,
@@ -108,11 +108,11 @@ async def update_category(
     Raises:        
         HTTPException: 404 分类不存在或不属于当前用户。
     """
-    category = await CategoryService.get_category_by_id(category_id)
+    category = await Service.category.get_category_by_id(category_id)
     if category is None:
         return fail_conflict(message="分类不存在或不属于当前用户")
 
-    updated_category = await CategoryService.update_category(
+    updated_category = await Service.category.update_category(
         id=category_id,
         new_category_id=payload.category_id,
         new_category_name=payload.category_name,

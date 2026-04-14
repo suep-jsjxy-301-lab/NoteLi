@@ -19,7 +19,7 @@ from app.core.config import cfg
 # from app.core.logger import logger
 from app.schemas.token import AccessTokenData, RefreshTokenData
 from app.models.models import User  # 仅用于类型注解
-from app.repositories.user import UserRepository
+from app.repositories import *
 
 ACCESS_TOKEN_EXPIRE_MINUTES: int = cfg.jwt.access_token_expire_minutes
 REFRESH_TOKEN_EXPIRE_DAYS: int = cfg.jwt.refresh_token_expire_days
@@ -143,7 +143,7 @@ class TokenService:
             raise exc
 
         # Step 5: 查询用户
-        user: User | None = await UserRepository.get_user_by_id(user_id)
+        user: User | None = await Repository.user.get_user_by_id(user_id)
         if user is None:
             raise exc
 

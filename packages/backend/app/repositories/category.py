@@ -1,6 +1,5 @@
 from typing import Optional
 from app.models.models import Category, User
-from app.schemas.category import CategoryOut
 
 class CategoryRepository:
     @staticmethod

@@ -11,10 +11,8 @@ from app.dependencies import (
 
 from app.core.logger import logger
 from app.models.models import User
-from app.services.user import UserService
-from app.services.token import TokenService
+from app.services import *
 from app.schemas.token import Token, RefreshToken, AccessToken
-from app.schemas.user import UserOut
 from app.schemas.response import ResponseModel
 from app.schemas.request import VerifyPasswordRequest
 from app.utils.response import ok
@@ -56,7 +54,7 @@ async def login_for_access_token(
     logger.debug(f"收到来自: {form_data.username}的登录请求")
 
     # 验证用户名密码
-    user: User | None = await UserService.authenticate(
+    user: User | None = await Service.user.authenticate(
         username=form_data.username, password=form_data.password
     )
     if not user:
@@ -67,8 +65,8 @@ async def login_for_access_token(
         )
 
     # 生成 access token 和 refresh token
-    access_token: str = await TokenService.create_access_token(user=user)
-    refresh_token: str = await TokenService.create_refresh_token(sub=user.id)
+    access_token: str = await Service.token.create_access_token(user=user)
+    refresh_token: str = await Service.token.create_refresh_token(sub=user.id)
     # 可选：返回 refresh token，或单独在 /refresh 接口生成
     logger.info(f"{user.username} 登录成功")
 
@@ -97,7 +95,7 @@ async def login_for_access_token_swagger(
     logger.debug(f"收到来自: {form_data.username}的登录请求")
 
     # 验证用户名密码
-    user: User | None = await UserService.authenticate(
+    user: User | None = await Service.user.authenticate(
         username=form_data.username, password=form_data.password
     )
     if not user:
@@ -108,8 +106,8 @@ async def login_for_access_token_swagger(
         )
 
     # 生成 access token 和 refresh token
-    access_token: str = await TokenService.create_access_token(user=user)
-    refresh_token: str = await TokenService.create_refresh_token(sub=user.id)
+    access_token: str = await Service.token.create_access_token(user=user)
+    refresh_token: str = await Service.token.create_refresh_token(sub=user.id)
     # 可选：返回 refresh token，或单独在 /refresh 接口生成
     logger.info(f"{user.username} 登录成功")
 
@@ -133,10 +131,10 @@ async def refresh_access_token(req: RefreshToken) -> ResponseModel[AccessToken]:
     Raises:
         HTTPException: 401 refresh_token 无效或已过期。
     """
-    current_user: User = await TokenService.validate_refresh_token(
+    current_user: User = await Service.token.validate_refresh_token(
         refresh_token=req.refresh_token
     )
-    new_access_token: str = await TokenService.create_access_token(user=current_user)
+    new_access_token: str = await Service.token.create_access_token(user=current_user)
     return ok(data=AccessToken(access_token=new_access_token))
 
 
@@ -163,7 +161,7 @@ async def logout(
     """
     # 验证 refresh_token 是否属于当前用户（可选但推荐）
     try:
-        user: User = await TokenService.validate_refresh_token(
+        user: User = await Service.token.validate_refresh_token(
             refresh_token=req.refresh_token
         )
         if str(object=user.id) != str(object=current_user.id):
@@ -178,7 +176,7 @@ async def logout(
         )
 
     # 将 refresh_token 加入黑名单
-    await TokenService.revoke_refresh_token(req.refresh_token)
+    await Service.token.revoke_refresh_token(req.refresh_token)
 
     logger.info(f"用户 {current_user.username} 退出登录成功")
     return ok(message="退出登录成功")
@@ -197,7 +195,7 @@ async def verify_password(
     Returns:
         统一响应包装，data 字段为布尔值，表示密码是否正确。
     """
-    is_valid = await UserService.verify_password(
+    is_valid = await Service.user.verify_password(
         username=current_user.username, password=request.password
     )
     return ok(data=is_valid)
