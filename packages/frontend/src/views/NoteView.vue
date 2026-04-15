@@ -429,12 +429,12 @@ const iconOptions = [
 // ========== 分类数据 ==========
 // 系统默认分类（不可删除）
 const defaultCategories = [
-  { id:null, category_name: '全部笔记', category_icon: 1, isDefault: true },
-  { id:null, category_name: '工作', category_icon: 2, isDefault: true },
-  { id:null, category_name: '个人', category_icon: 3, isDefault: true },
-  { id:null, category_name: '学习', category_icon: 4, isDefault: true },
-  { id:null, category_name: '想法', category_icon: 5, isDefault: true },
-  { id:null, category_name: '待办', category_icon: 6, isDefault: true }
+  { id:1, category_name: '全部笔记', category_icon: 1, isDefault: true },
+  { id:2, category_name: '工作', category_icon: 2, isDefault: true },
+  { id:3, category_name: '个人', category_icon: 3, isDefault: true },
+  { id:4, category_name: '学习', category_icon: 4, isDefault: true },
+  { id:5, category_name: '想法', category_icon: 5, isDefault: true },
+  { id:6, category_name: '待办', category_icon: 6, isDefault: true }
 ]
 // 自定义分类（用户可增删改）
 const customCategories = ref([])
@@ -479,6 +479,18 @@ watch(editableCategories, () => {
 // ========== 笔记数据 ==========
 const notes = ref([])
 
+const init_notes = () =>{
+  
+}
+
+const editingNote = ref({
+  id: null,
+  title: '',
+  content: '',
+  category_name: '全部笔记',
+  tags: []
+})
+const tagInput = ref('')
 // ========== 状态管理 ==========
 const activeCategory = ref('全部笔记')
 const activeTag = ref('')
@@ -551,16 +563,6 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
-
-// 编辑中的笔记
-const editingNote = ref({
-  id: null,
-  title: '',
-  content: '',
-  category_name: '全部笔记',
-  tags: []
-})
-const tagInput = ref('')
 
 // 新分类表单
 const newCategory = reactive({
@@ -847,7 +849,7 @@ const saveNote = async () => {
     if (!editingNote.value.id) {
       // 理论上 createNewNote 已经会创建草稿；兜底再创建一次
       const resp = await Api.note.createNoteApi({
-        category_id: editingNote.value.category_id,
+        category_id: iconOptions.findIndex(icon => icon === editingNote.value.category_id) + 1,
         title: editingNote.value.title ?? '',
         content: editingNote.value.content ?? '',
         tags,
@@ -857,7 +859,7 @@ const saveNote = async () => {
     } else {
       await Api.note.updateNoteApi({
         id: editingNote.value.id,
-        category_id: editingNote.value.category_id,
+        category_id: iconOptions.findIndex(icon => icon === editingNote.value.category_id) + 1,
         title: editingNote.value.title ?? '',
         content: editingNote.value.content ?? '',
         tags,

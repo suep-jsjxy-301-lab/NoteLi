@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS categories (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id CHAR(36) NOT NULL,
+    user_id CHAR(36) ,
     category_id INTEGER NOT NULL CHECK(category_id BETWEEN 1 AND 24),
     category_name TEXT NOT NULL CHECK(length(category_name) <= 6),
     UNIQUE(user_id, category_name),
