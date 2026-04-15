@@ -20,3 +20,31 @@ class Category(Model):
     category_name = fields.CharField(max_length=6, validators=[MaxLengthValidator(6)])
     class Meta:
         table = "categories"
+
+class Note(Model):
+    id = fields.IntField(pk=True, generated=True, description="笔记ID")
+    user = fields.ForeignKeyField(
+        "models.User",
+        related_name="notes",
+        on_delete=fields.CASCADE,
+        description="所属用户",
+    )
+    category = fields.ForeignKeyField(
+        "models.Category",
+        related_name="notes",
+        on_delete=fields.SET_NULL,
+        null=True,
+        description="所属分类",
+    )
+    title = fields.CharField(max_length=255, description="笔记标题")
+    content = fields.TextField(description="笔记内容")
+    category_name = fields.CharField(max_length=6, null=True, description="分类名称")
+    tags = fields.JSONField(default=list, description="标签列表")
+    starred = fields.BooleanField(default=False, description="是否星标")
+    created_at = fields.DatetimeField(auto_now_add=True, description="创建时间")
+    updated_at = fields.DatetimeField(auto_now=True, description="更新时间")
+
+    class Meta:
+        table = "notes"
+        ordering = ["-updated_at"]
+        description = "笔记表"

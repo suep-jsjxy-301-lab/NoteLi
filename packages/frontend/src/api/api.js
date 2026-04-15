@@ -1,11 +1,10 @@
-import request from '@/api/request';
 import userApi from '@/api/userApi';
 import categoryApi from '@/api/categoryApi';
-import qs from 'qs';
-
+import noteApi from '@/api/noteApi';
 
 const Api = {
     user: userApi,
-    category: categoryApi
+    category: categoryApi,
+    note: noteApi
 };
 export default Api;

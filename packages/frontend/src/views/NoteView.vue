@@ -150,12 +150,14 @@
                     个人中心
                   </button>
                   
+                  <!--
                   <button class="dropdown-item" @click="goToSettings">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
                       <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.33-.02-.64-.06-.94l2.02-1.58c.18-.14.23-.38.12-.56l-1.89-3.28c-.12-.19-.36-.26-.56-.18l-2.38.96c-.5-.38-1.06-.68-1.66-.88L14.45 3.5c-.04-.2-.2-.34-.4-.34h-3.78c-.2 0-.36.14-.4.34l-.3 2.52c-.6.2-1.16.5-1.66.88l-2.38-.96c-.2-.08-.44-.01-.56.18l-1.89 3.28c-.12.19-.07.42.12.56l2.02 1.58c-.04.3-.06.61-.06.94 0 .33.02.64.06.94l-2.02 1.58c-.18.14-.23.38-.12.56l1.89 3.28c.12.19.36.26.56.18l2.38-.96c.5.38 1.06.68 1.66.88l.3 2.52c.04.2.2.34.4.34h3.78c.2 0 .36-.14.4-.34l.3-2.52c.6-.2 1.16-.5 1.66-.88l2.38.96c.2.08.44.01.56-.18l1.89-3.28c.12-.19.07-.42-.12-.56l-2.02-1.58zM12 15c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
                     </svg>
                     账号设置
                   </button>
+                  -->
                 </div>
                 
                 <div class="dropdown-divider"></div>
@@ -427,12 +429,12 @@ const iconOptions = [
 // ========== 分类数据 ==========
 // 系统默认分类（不可删除）
 const defaultCategories = [
-  { category_name: '全部笔记', category_icon: 1, isDefault: true },
-  { category_name: '工作', category_icon: 2, isDefault: true },
-  { category_name: '个人', category_icon: 3, isDefault: true },
-  { category_name: '学习', category_icon: 4, isDefault: true },
-  { category_name: '想法', category_icon: 5, isDefault: true },
-  { category_name: '待办', category_icon: 6, isDefault: true }
+  { id:null, category_name: '全部笔记', category_icon: 1, isDefault: true },
+  { id:null, category_name: '工作', category_icon: 2, isDefault: true },
+  { id:null, category_name: '个人', category_icon: 3, isDefault: true },
+  { id:null, category_name: '学习', category_icon: 4, isDefault: true },
+  { id:null, category_name: '想法', category_icon: 5, isDefault: true },
+  { id:null, category_name: '待办', category_icon: 6, isDefault: true }
 ]
 // 自定义分类（用户可增删改）
 const customCategories = ref([])
@@ -475,78 +477,7 @@ watch(editableCategories, () => {
 }, { deep: true })
 
 // ========== 笔记数据 ==========
-const notes = ref([
-  {
-    id: 1,
-    title: '项目会议记录',
-    content: '讨论了下一阶段的产品功能规划，确定了技术选型和开发排期。需要在本周完成原型设计。',
-    category_name: '工作',
-    tags: ['会议', '项目', '规划'],
-    starred: true,
-    createdAt: '2026-04-01T09:00:00',
-    updatedAt: '2026-04-09T14:30:00'
-  },
-  {
-    id: 2,
-    title: 'Vue 3 学习笔记',
-    content: 'Composition API 是 Vue 3 的核心特性，setup 函数是入口。ref 用于基本类型响应式，reactive 用于对象。',
-    category_name: '学习',
-    tags: ['Vue', '前端', 'JavaScript'],
-    starred: false,
-    createdAt: '2026-04-05T15:20:00',
-    updatedAt: '2026-04-08T10:15:00'
-  },
-  {
-    id: 3,
-    title: '购物清单',
-    content: '牛奶、鸡蛋、面包、水果、咖啡豆、纸巾',
-    category_name: '个人',
-    tags: ['购物', '生活'],
-    starred: false,
-    createdAt: '2026-04-08T18:00:00',
-    updatedAt: '2026-04-08T18:00:00'
-  },
-  {
-    id: 4,
-    title: '产品功能脑暴',
-    content: '1. 暗黑模式\n2. 笔记分享功能\n3. Markdown 支持\n4. 云端同步\n5. 协作编辑',
-    category_name: '工作',
-    tags: ['产品', '功能', '脑暴'],
-    starred: true,
-    createdAt: '2026-04-03T11:30:00',
-    updatedAt: '2026-04-07T16:45:00'
-  },
-  {
-    id: 5,
-    title: '周末计划',
-    content: '周六上午健身，下午和朋友聚餐。周日整理房间，看一本书。',
-    category_name: '待办',
-    tags: ['周末', '计划'],
-    starred: false,
-    createdAt: '2026-04-09T08:00:00',
-    updatedAt: '2026-04-09T08:00:00'
-  },
-  {
-    id: 6,
-    title: 'API 接口设计规范',
-    content: 'RESTful API 设计原则：使用名词复数、HTTP 方法语义化、版本控制放在 URL 中。',
-    category_name: '工作',
-    tags: ['API', '后端', '规范'],
-    starred: false,
-    createdAt: '2026-04-02T13:15:00',
-    updatedAt: '2026-04-06T09:30:00'
-  },
-  {
-    id: 7,
-    title: '日本旅行攻略',
-    content: '东京：浅草寺、晴空塔、秋叶原。大阪：环球影城、道顿堀。京都：清水寺、伏见稻荷大社。',
-    category_name: '个人',
-    tags: ['旅行', '日本', '攻略'],
-    starred: true,
-    createdAt: '2026-03-20T10:00:00',
-    updatedAt: '2026-04-01T15:20:00'
-  }
-])
+const notes = ref([])
 
 // ========== 状态管理 ==========
 const activeCategory = ref('全部笔记')
@@ -792,7 +723,7 @@ const updateCategory = async (categoryId, categoryData) => {
   alert('分类已更新')
 }
 
-const deleteCategory = (category) => {
+const deleteCategory = async (category) => {
   const noteCount = getCategoryCount(category.category_name)
   if (noteCount > 0) {
     alert(`无法删除：该分类下还有 ${noteCount} 篇笔记，请先移动或删除这些笔记`)
@@ -800,8 +731,8 @@ const deleteCategory = (category) => {
   }
   
   if (confirm(`确定要删除分类"${category.category_name}"吗？`)) {
-    const response = Api.category.deleteCategoryApi(category.id)
-    if(response.sccess === false) {
+    const response =await Api.category.deleteCategoryApi(category.id)
+    if(response.success === false) {
       alert('分类删除失败，请稍后重试')
       return
     }
@@ -836,24 +767,59 @@ const formatDate = (dateStr) => {
   return date.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })
 }
 
-const createNewNote = () => {
-  const defaultCategoryId = selectableCategories.value.length > 0 
-    ? selectableCategories.value[0].id 
-    : 'personal'
-  
-  editingNote.value = {
-    id: null,
-    title: '',
-    content: '',
-    category_id: defaultCategoryId,
-    tags: []
+const createNewNote = async () => {
+  const defaultCategoryId = selectableCategories.value[0].id
+
+  try {
+    // 点击“新建笔记”即在后端创建一条草稿，拿到 note.id
+    const resp = await Api.note.createNoteApi({
+      category_id: defaultCategoryId,
+      title: '',
+      content: '',
+      tags: [],
+      starred: false
+    })
+    const created = resp?.data?.data
+
+    editingNote.value = {
+      id: created?.id ?? null,
+      title: created?.title ?? '',
+      content: created?.content ?? '',
+      category_id: defaultCategoryId,
+      tags: created?.tags ?? []
+    }
+
+    // 让列表也立刻出现这条新笔记（用后端 id）
+    const now = new Date().toISOString()
+    notes.value.unshift({
+      id: created?.id ?? Date.now(),
+      title: '',
+      content: '',
+      category_name: created?.category_name ?? (selectableCategories.value[0]?.category_name ?? ''),
+      tags: [],
+      starred: false,
+      createdAt: created?.created_at ?? now,
+      updatedAt: created?.updated_at ?? now
+    })
+
+    tagInput.value = ''
+    showDrawer.value = true
+  } catch (e) {
+    console.error('新建笔记失败:', e)
+    const status = e?.response?.status
+    const detail = e?.response?.data?.message || e?.response?.data?.detail
+    alert(`新建笔记失败${status ? `（HTTP ${status}）` : ''}${detail ? `：${detail}` : ''}`)
   }
-  tagInput.value = ''
-  showDrawer.value = true
 }
 
 const selectNote = (note) => {
-  editingNote.value = { ...note }
+  editingNote.value = {
+    id: note.id ?? null,
+    title: note.title ?? '',
+    content: note.content ?? '',
+    category_id: note.category_id ?? (categories.value.find(c => c.category_name === note.category_name)?.id ?? 2),
+    tags: note.tags ?? []
+  }
   tagInput.value = note.tags?.join(', ') || ''
   showDrawer.value = true
 }
@@ -864,54 +830,96 @@ const closeDrawer = () => {
     id: null,
     title: '',
     content: '',
-    category_id: 'personal',
+    category_id: 2,
     tags: []
   }
   tagInput.value = ''
 }
 
-const saveNote = () => {
+const saveNote = async () => {
   const now = new Date().toISOString()
   const tags = tagInput.value
     .split(',')
     .map(t => t.trim())
     .filter(t => t)
   
-  if (editingNote.value.id) {
-    const index = notes.value.findIndex(n => n.id === editingNote.value.id)
-    if (index !== -1) {
-      notes.value[index] = {
-        ...notes.value[index],
-        ...editingNote.value,
+  try {
+    if (!editingNote.value.id) {
+      // 理论上 createNewNote 已经会创建草稿；兜底再创建一次
+      const resp = await Api.note.createNoteApi({
+        category_id: editingNote.value.category_id,
+        title: editingNote.value.title ?? '',
+        content: editingNote.value.content ?? '',
         tags,
-        updatedAt: now
-      }
+        starred: false
+      })
+      editingNote.value.id = resp?.data?.data?.id ?? null
+    } else {
+      await Api.note.updateNoteApi({
+        id: editingNote.value.id,
+        category_id: editingNote.value.category_id,
+        title: editingNote.value.title ?? '',
+        content: editingNote.value.content ?? '',
+        tags,
+        starred: false
+      })
     }
-  } else {
-    const newNote = {
+
+    // 同步本地列表展示
+    const index = notes.value.findIndex(n => n.id === editingNote.value.id)
+    const payloadForList = {
       ...editingNote.value,
-      id: Date.now(),
       tags,
-      starred: false,
-      createdAt: now,
       updatedAt: now
     }
-    notes.value.unshift(newNote)
+    if (index !== -1) {
+      notes.value[index] = { ...notes.value[index], ...payloadForList }
+    } else {
+      notes.value.unshift({
+        ...payloadForList,
+        id: editingNote.value.id ?? Date.now(),
+        starred: false,
+        createdAt: now,
+        updatedAt: now
+      })
+    }
+
+    closeDrawer()
+  } catch (e) {
+    console.error('保存笔记失败:', e)
+    const status = e?.response?.status
+    const detail = e?.response?.data?.message || e?.response?.data?.detail
+    alert(`保存失败${status ? `（HTTP ${status}）` : ''}${detail ? `：${detail}` : ''}`)
   }
-  
-  closeDrawer()
 }
 
 const toggleStar = (note) => {
   note.starred = !note.starred
 }
 
-const deleteNote = (note) => {
-  if (confirm(`确定要删除笔记"${note.title || '无标题'}"吗？`)) {
+const deleteNote = async (note) => {
+  if (!confirm(`确定要删除笔记"${note.title || '无标题'}"吗？`)) return
+
+  // 没落库的临时笔记（防御性处理）直接本地删除
+  if (!note?.id || typeof note.id !== 'number') {
     const index = notes.value.findIndex(n => n.id === note.id)
-    if (index !== -1) {
-      notes.value.splice(index, 1)
+    if (index !== -1) notes.value.splice(index, 1)
+    return
+  }
+
+  try {
+    await Api.note.deleteNoteApi(note.id)
+    const index = notes.value.findIndex(n => n.id === note.id)
+    if (index !== -1) notes.value.splice(index, 1)
+
+    if (editingNote.value?.id === note.id) {
+      closeDrawer()
     }
+  } catch (e) {
+    console.error('删除笔记失败:', e)
+    const status = e?.response?.status
+    const detail = e?.response?.data?.message || e?.response?.data?.detail
+    alert(`删除失败${status ? `（HTTP ${status}）` : ''}${detail ? `：${detail}` : ''}`)
   }
 }
 

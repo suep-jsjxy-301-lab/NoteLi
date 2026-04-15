@@ -18,3 +18,6 @@ class ChangeUsernameRequest(BaseModel):
 
 class CategoryIDRequest(BaseModel):
     id: int = Field(default=..., gt=0)
+
+class NoteIDRequest(BaseModel):
+    id: int = Field(default=..., ge=1)

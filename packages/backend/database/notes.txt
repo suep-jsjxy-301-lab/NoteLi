@@ -1,0 +1,12 @@
+CREATE TABLE "notes" (
+  "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL /* 笔记ID */,
+  "title" VARCHAR(255) NOT NULL /* 笔记标题 */,
+  "content" TEXT NOT NULL /* 笔记内容 */,
+  "category_name" VARCHAR(6) /* 分类名称 */,
+  "tags" JSON NOT NULL /* 标签列表 */,
+  "starred" INT NOT NULL DEFAULT 0 /* 是否星标 */,
+  "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP /* 创建时间 */,
+  "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP /* 更新时间 */,
+  "category_id" INT REFERENCES "categories" ("id") ON DELETE SET NULL /* 所属分类 */,
+  "user_id" CHAR(36) NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE /* 所属用户 */
+)
