@@ -21,6 +21,11 @@ const noteApi = {
       headers: { 'Content-Type': 'application/json' },
     })
   },
+  updateNoteStarredApi(payload) {
+    return request.post('/note/update_starred', payload, {
+      headers: { 'Content-Type': 'application/json' },
+    })
+  },
 }
 
 export default noteApi

@@ -924,6 +924,11 @@ const saveNote = async () => {
 
 const toggleStar = (note) => {
   note.starred = !note.starred
+  const response = Api.note.updateNoteStarredApi({ id: note.id })
+  if(response.success === false) {
+    alert('操作失败，请稍后重试')
+    note.starred = !note.starred // 回退状态
+  }
 }
 
 const deleteNote = async (note) => {
