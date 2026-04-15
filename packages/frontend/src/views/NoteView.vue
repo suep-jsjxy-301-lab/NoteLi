@@ -290,7 +290,7 @@
         
         <div class="form-group">
           <select v-model="editingNote.category_id" class="category-select">
-            <option v-for="cat in selectableCategories" :key="cat.category_icon" :value="getCategoryIcon(cat.category_name)">
+            <option v-for="cat in selectableCategories" :key="cat.id" :value="cat.id">
               {{ getCategoryIcon(cat.category_name) }} {{ cat.category_name }}
             </option>
           </select>
@@ -864,7 +864,7 @@ const closeDrawer = () => {
 const saveNote = async () => {
   const now = new Date().toISOString()
   const tags = tagInput.value
-    .split(',')
+    .split(/[，,]/)
     .map(t => t.trim())
     .filter(t => t)
   
@@ -872,24 +872,23 @@ const saveNote = async () => {
     if (!editingNote.value.id) {
       // 理论上 createNewNote 已经会创建草稿；兜底再创建一次
       const resp = await Api.note.createNoteApi({
-        category_id: iconOptions.findIndex(icon => icon === editingNote.value.category_id) + 1,
+        category_id: editingNote.value.category_id || 2,
         title: editingNote.value.title ?? '',
         content: editingNote.value.content ?? '',
-        tags: editingNote.value.tags,
+        tags,
         starred: false
       })
       editingNote.value.id = resp?.data?.data?.id ?? null
     }
     const response = await Api.note.updateNoteApi({
       id: editingNote.value.id,
-      category_id: iconOptions.findIndex(icon => icon === editingNote.value.category_id) + 1,
+      category_id: editingNote.value.category_id || 2,
       title: editingNote.value.title ?? '',
       content: editingNote.value.content ?? '',
-      tags: editingNote.value.tags,
+      tags,
       starred: false
     })
     const Date = response?.data?.data
-    console.log(response)
     // 同步本地列表展示
     const index = notes.value.findIndex(n => n.id === Date.id)
     if (index !== -1) {
@@ -957,12 +956,6 @@ const deleteNote = async (note) => {
   }
 }
 
-// 监听标签变化
-watch(activeTag, (newTag) => {
-  if (newTag) {
-    activeCategory.value = 'all'
-  }
-})
 </script>
 
 <style scoped>
