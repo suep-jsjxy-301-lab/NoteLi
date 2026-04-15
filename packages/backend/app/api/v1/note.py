@@ -93,7 +93,7 @@ async def list_notes(
     data = [
         NoteOut(
             id=n.id,
-            category_id=(n.category.category_id if n.category else None),
+            category_id=n.category_id,
             category_name=n.category_name,
             title=n.title,
             content=n.content,
@@ -105,3 +105,20 @@ async def list_notes(
         for n in notes
     ]
     return ok(data=data, message="获取笔记列表成功")
+
+@note_router.post("/update_starred", response_model=ResponseModel[bool])
+async def update_note_starred(
+    payload: NoteIDRequest,
+    current_user: User = Depends(get_current_user),
+) -> ResponseModel[bool]:
+    note = await Service.note.get_note_by_id(user=current_user, note_id=payload.id)
+    if note is None:
+        return fail_not_found(message="笔记不存在")
+    if str(note.user_id) != str(current_user.id):
+        return fail_not_found(message="无权限操作该笔记")
+
+    new_starred = not note.starred
+    updated = await Service.note.update_note_starred(note=note, starred=new_starred)
+    if not updated:
+        return fail_not_found(message="更新星标状态失败")
+    return ok(data=True, message="更新星标状态成功")

@@ -56,3 +56,9 @@ class NoteRepository:
     @staticmethod
     async def get_notelist_by_user(user: User) -> list[Note]:
         return await Note.filter(user=user).all()
+    
+    @staticmethod
+    async def update_note_starred(note: Note, starred: bool) -> bool:
+        note.starred = starred
+        await note.save()
+        return True

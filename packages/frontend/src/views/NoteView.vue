@@ -479,9 +479,32 @@ watch(editableCategories, () => {
 // ========== 笔记数据 ==========
 const notes = ref([])
 
-const init_notes = () =>{
-  
+const init_notes = async () =>{
+  try {
+    const resp = await Api.note.listNotesApi()
+    const list = resp?.data?.data ?? []
+    notes.value = list.map(n => ({
+      id: n.id,
+      title: n.title,
+      content: n.content,
+      category_id: n.category_id,
+      category_name: n.category_name,
+      tags: n.tags ?? [],
+      starred: !!n.starred,
+      createdAt: n.created_at,
+      updatedAt: n.updated_at
+    }))
+  } catch (e) {
+    console.error('获取笔记列表失败:', e)
+    const status = e?.response?.status
+    const detail = e?.response?.data?.message || e?.response?.data?.detail
+    alert(`获取笔记列表失败${status ? `（HTTP ${status}）` : ''}${detail ? `：${detail}` : ''}`)
+  }
 }
+
+onMounted(() => {
+  init_notes()
+})
 
 const editingNote = ref({
   id: null,
@@ -852,37 +875,41 @@ const saveNote = async () => {
         category_id: iconOptions.findIndex(icon => icon === editingNote.value.category_id) + 1,
         title: editingNote.value.title ?? '',
         content: editingNote.value.content ?? '',
-        tags,
+        tags: editingNote.value.tags,
         starred: false
       })
       editingNote.value.id = resp?.data?.data?.id ?? null
-    } else {
-      await Api.note.updateNoteApi({
-        id: editingNote.value.id,
-        category_id: iconOptions.findIndex(icon => icon === editingNote.value.category_id) + 1,
-        title: editingNote.value.title ?? '',
-        content: editingNote.value.content ?? '',
-        tags,
-        starred: false
-      })
     }
-
+    const response = await Api.note.updateNoteApi({
+      id: editingNote.value.id,
+      category_id: iconOptions.findIndex(icon => icon === editingNote.value.category_id) + 1,
+      title: editingNote.value.title ?? '',
+      content: editingNote.value.content ?? '',
+      tags: editingNote.value.tags,
+      starred: false
+    })
+    const Date = response?.data?.data
+    console.log(response)
     // 同步本地列表展示
-    const index = notes.value.findIndex(n => n.id === editingNote.value.id)
-    const payloadForList = {
-      ...editingNote.value,
-      tags,
-      updatedAt: now
-    }
+    const index = notes.value.findIndex(n => n.id === Date.id)
     if (index !== -1) {
-      notes.value[index] = { ...notes.value[index], ...payloadForList }
+      notes.value[index].title = Date.title
+      notes.value[index].content = Date.content
+      notes.value[index].category_id = Date.category_id
+      notes.value[index].category_name = Date.category_name
+      notes.value[index].tags = Date.tags
+      notes.value[index].updatedAt = Date.updated_at
     } else {
+      // 如果列表里没有（理论上不应该发生），就加进去
       notes.value.unshift({
-        ...payloadForList,
-        id: editingNote.value.id ?? Date.now(),
+        id: Date.id,
+        title: Date.title,
+        content: Date.content,
+        category_name: Date.category_name,
+        tags: Date.tags,
         starred: false,
-        createdAt: now,
-        updatedAt: now
+        createdAt: Date.created_at,
+        updatedAt: Date.updated_at
       })
     }
 

@@ -96,3 +96,17 @@ class NoteService:
     @staticmethod
     async def list_notes(*, user: User) -> list[Note]:
         return await Repository.note.get_notelist_by_user(user)
+    
+    @staticmethod
+    async def get_note_by_id(*, user: User, note_id: int) -> Optional[Note]:
+        note = await Repository.note.get_note_by_id(note_id)
+        if note is None:
+            return None
+        if str(note.user_id) != str(user.id):
+            return None
+        return note
+    
+    @staticmethod
+    async def update_note_starred( note: Note, starred: bool) -> bool:
+        await Repository.note.update_note_starred(note=note, starred=starred)
+        return True
