@@ -65,17 +65,11 @@ class NoteService:
         if str(note.user_id) != str(user.id):
             return None
 
-        category: Optional[Category] = await Category.filter(
-            user=user, category_id=category_id
-        ).first()
-        category_name = NoteService._resolve_category_name(
-            category=category, category_id=category_id
-        )
-
+        category: Optional[Category] = await Repository.category.get_category_by_id(id=category_id)
         await Repository.note.save_note(
             note=note,
             category=category,
-            category_name=category_name,
+            category_name=category.category_name if category else NoteService._DEFAULT_CATEGORY_NAME_BY_ID.get(category_id),
             title=title,
             content=content,
             tags=tags,

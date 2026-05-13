@@ -66,7 +66,7 @@ class NoteOut(BaseModel):
 
 class NoteUpdateIn(BaseModel):
     id: int = Field(..., ge=1, description="笔记ID")
-    category_id: int = Field(..., ge=1, le=24, description="分类ID（业务ID，同图标编号）")
+    category_id: int = Field(..., description="分类ID（业务ID，同图标编号）")
     title: str = Field("", max_length=255, description="笔记标题")
     content: str = Field("", description="笔记内容")
     tags: list[str] = Field(default_factory=list, description="标签列表")
