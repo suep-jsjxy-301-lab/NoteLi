@@ -41,7 +41,7 @@
     </div>
     
     <div class="drawer-footer">
-      <!-- 快捷操作 -->
+      <!-- 快捷操作 
       <div class="quick-actions">
         <button 
           v-for="action in quickActions" 
@@ -51,7 +51,7 @@
         >
           {{ action.icon }} {{ action.text }}
         </button>
-      </div>
+      </div>-->
       
       <!-- 输入区域 -->
       <div class="input-area">
@@ -112,7 +112,7 @@ const emit = defineEmits(['close', 'action'])
 const messages = ref([
   {
     role: 'assistant',
-    content: '你好！我是你的 AI 笔记助手 🎯\n\n我可以帮你：\n• 总结和整理笔记内容\n• 生成笔记标题\n• 提取笔记标签\n• 优化文字表达\n• 回答笔记相关问题\n\n有什么我可以帮你的吗？',
+    content: '你好！我是你的 AI 笔记助手 \n\n有什么我可以帮你的吗？',
     time: getCurrentTime()
   }
 ])
@@ -122,7 +122,7 @@ const messagesContainer = ref(null)
 
 // 快捷操作
 const quickActions = [
-  { icon: '📝', text: '总结当前笔记' },
+  { icon: '📝', text: '新建一篇笔记' },
   { icon: '🏷️', text: '生成标签' },
   { icon: '✏️', text: '优化表达' },
   { icon: '📊', text: '笔记统计' }
@@ -212,84 +212,6 @@ async function processWithAI(userMessage) {
     message: response?.data?.data ?? "请求失败，请稍后再试。",
     actions: []
   }
-  
-  // 通用回复
-  return {
-    message: getGeneralResponse(userMessage),
-    actions: []
-  }
-}
-
-// 生成摘要
-function generateSummary(content) {
-  if (!content) return '暂无内容'
-  const plainText = content.replace(/<[^>]+>/g, '')
-  return plainText.length > 200 ? plainText.substring(0, 200) + '...' : plainText
-}
-
-// 生成标签
-function generateTags(content) {
-  const tags = []
-  const lowerContent = content.toLowerCase()
-  
-  if (lowerContent.includes('工作') || lowerContent.includes('项目') || lowerContent.includes('会议')) {
-    tags.push('工作')
-  }
-  if (lowerContent.includes('学习') || lowerContent.includes('课程') || lowerContent.includes('知识')) {
-    tags.push('学习')
-  }
-  if (lowerContent.includes('想法') || lowerContent.includes('灵感') || lowerContent.includes('创意')) {
-    tags.push('灵感')
-  }
-  if (lowerContent.includes('待办') || lowerContent.includes('任务') || lowerContent.includes('计划')) {
-    tags.push('待办')
-  }
-  if (lowerContent.includes('重要') || lowerContent.includes('紧急')) {
-    tags.push('重要')
-  }
-  
-  return tags.length ? tags : ['笔记', '记录']
-}
-
-// 优化内容
-function optimizeContent(content) {
-  // 简单的优化示例，实际可以使用 AI 接口
-  let optimized = content
-  optimized = optimized.replace(/  +/g, ' ')
-  optimized = optimized.replace(/^\s+|\s+$/g, '')
-  return optimized
-}
-
-// 获取笔记统计
-function getNoteStats() {
-  const notes = props.allNotes
-  let totalWords = 0
-  notes.forEach(note => {
-    const plainText = note.content?.replace(/<[^>]+>/g, '') || ''
-    totalWords += plainText.length
-  })
-  
-  return {
-    totalNotes: notes.length,
-    totalWords,
-    avgWords: notes.length ? Math.round(totalWords / notes.length) : 0,
-    categoryCount: props.categories.length,
-    tagCount: new Set(notes.flatMap(n => n.tags || [])).size
-  }
-}
-
-// 获取通用回复
-function getGeneralResponse(message) {
-  if (message.includes('你好') || message.includes('hi')) {
-    return '你好！有什么可以帮你的吗？'
-  }
-  if (message.includes('谢谢')) {
-    return '不客气！随时为你服务 😊'
-  }
-  if (message.includes('帮助')) {
-    return '我可以帮你处理笔记相关的事情，比如总结内容、生成标签、优化表达等。试试发送"总结当前笔记"或"生成标签"吧！'
-  }
-  return `收到你的问题："${message}"\n\n我目前还在学习阶段，你可以尝试以下功能：\n• 总结当前笔记\n• 生成标签\n• 优化表达\n• 笔记统计`
 }
 
 // 监听消息变化滚动
