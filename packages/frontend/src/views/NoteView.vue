@@ -10,7 +10,15 @@
       <button class="new-note-btn" @click="createNewNote">
         <span>+</span> 新建笔记
       </button>
-      
+
+      <button class="sharenote-btn" @click="router.push('/share')">
+        <span>📡</span> 共享笔记
+      </button>
+
+      <button class="ai-helper-btn" @click="openAIManage">
+        <span>🤖</span> AI助手
+      </button>
+
       <!-- 分类筛选（含管理功能） -->
       <div class="sidebar-section">
         <div class="section-header">
@@ -406,6 +414,17 @@
         </div>
       </div>
     </div>
+
+    <AIAssistantDrawer 
+    :visible="showAIDrawer"
+    :current-note="currentSelectedNote"
+    :all-notes="notes"
+    :categories="categories"
+    :init_notes="init_notes"
+    :init_Categories="init_Categories"
+    @close="closeAIDrawer"
+    @action="handleAIAction"
+    />
   </div>
 </template>
 
@@ -414,6 +433,7 @@ import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
 import Api from '@/api/api'
+import AIAssistantDrawer from '@/views/AIAssistantDrawer.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -521,6 +541,8 @@ const searchKeyword = ref('')
 const viewMode = ref('grid')
 const showDrawer = ref(false)
 const showCategoryModal = ref(false)
+const showAIDrawer = ref(false)
+const currentSelectedNote = ref(null)
 
 const userInfo = reactive({
   username: userStore.userInfo.username,
@@ -641,6 +663,53 @@ const filteredNotes = computed(() => {
   return result.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
 })
 
+// ========== AI助手相关方法 ==========
+// 打开 AI 助手
+const openAIManage = () => {
+  showAIDrawer.value = true
+}
+
+// 关闭 AI 助手
+const closeAIDrawer = () => {
+  showAIDrawer.value = false
+}
+
+// 处理 AI 操作
+const handleAIAction = (action) => {
+  console.log('AI 执行操作:', action)
+  
+  switch (action.type) {
+    case 'addTags':
+      // 添加标签到当前笔记
+      if (editingNote.value && action.tags) {
+        const existingTags = editingNote.value.tags || []
+        const newTags = [...new Set([...existingTags, ...action.tags])]
+        editingNote.value.tags = newTags
+        tagInput.value = newTags.join(', ')
+        // 保存笔记
+        saveNote()
+      }
+      break
+      
+    case 'optimize':
+      // 优化当前笔记内容
+      if (editingNote.value && action.content) {
+        editingNote.value.content = action.content
+        // 保存笔记
+        saveNote()
+      }
+      break
+      
+    default:
+      break
+  }
+}
+
+// 监听笔记选中，更新当前选中的笔记
+watch(editingNote, (newNote) => {
+  currentSelectedNote.value = newNote
+}, { deep: true })
+
 // ========== 分类相关方法 ==========
 const getCategoryIcon = (category_name) => {
   const category = categories.value.find(c => c.category_name === category_name)
@@ -681,6 +750,7 @@ const init_Categories = async () => {
     alert('获取分类列表失败，请稍后重试')
   }
 }
+
 init_Categories()
 
 const addCategory = async () => {
@@ -1017,6 +1087,62 @@ const deleteNote = async (note) => {
 }
 
 .new-note-btn span {
+  font-size: 20px;
+  font-weight: 300;
+}
+
+.sharenote-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s;
+  margin-bottom: 24px;
+}
+
+.sharenote-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+}
+
+.sharenote-btn span {
+  font-size: 20px;
+  font-weight: 300;
+}
+
+.ai-helper-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s;
+  margin-bottom: 24px;
+}
+
+.ai-helper-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+}
+
+.ai-helper-btn span {
   font-size: 20px;
   font-weight: 300;
 }

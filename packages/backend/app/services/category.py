@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional
 from app.repositories import *
 from app.models.models import Category, User
@@ -59,3 +60,8 @@ class CategoryService:
     async def get_category_by_id(id: int) -> Optional[Category]:
         """根据分类ID获取分类"""
         return await Repository.category.get_category_by_id(id)
+    
+    @staticmethod
+    async def get_default_categories() -> list[Category]:
+        """获取默认分类"""
+        return await Repository.category.get_default_categories()

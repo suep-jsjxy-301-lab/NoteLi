@@ -6,13 +6,15 @@ import RegisterView from './src/views/RegisterView.vue'
 import LoginView from './src/views/LoginView.vue'
 import NoteView from './src/views/NoteView.vue'
 import UserProView from './src/views/UserProView.vue'
+import ShareNoteView from './src/views/ShareNoteView.vue'
 
 const routes = [
     {path:"/",component:LoginView},
     {path:"/login",component:LoginView},
     {path:"/register",component:RegisterView},
     {path:"/notes",component:NoteView},
-    {path:"/user",component:UserProView}
+    {path:"/user",component:UserProView},
+    {path:"/share",component:ShareNoteView}
 ]
 
 const router = createRouter({

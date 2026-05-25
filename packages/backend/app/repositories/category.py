@@ -63,3 +63,9 @@ class CategoryRepository:
             category_name=new_category_name
         )
         return updated_count > 0
+    
+    @staticmethod
+    async def get_default_categories() -> list[Category]:
+        """获取默认分类"""
+        categories = await Category.filter(id__range=(2,5)).all()
+        return categories

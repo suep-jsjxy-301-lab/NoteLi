@@ -14,14 +14,6 @@ class NoteService:
         6: "待办",
     }
 
-    @classmethod
-    def _resolve_category_name(
-        cls, *, category: Optional[Category], category_id: int
-    ) -> Optional[str]:
-        if category is not None:
-            return category.category_name
-        return cls._DEFAULT_CATEGORY_NAME_BY_ID.get(category_id)
-
     @staticmethod
     async def create_note(
         *,
@@ -32,16 +24,12 @@ class NoteService:
         tags: list[str],
         starred: bool,
     ) -> Note:
-        category: Optional[Category] = await Category.filter(
-            user=user, category_id=category_id
-        ).first()
-        category_name = NoteService._resolve_category_name(
-            category=category, category_id=category_id
-        )
+        """创建笔记，自动解析分类名称"""
+        category = await Repository.category.get_category_by_id(id=category_id)
         return await Repository.note.create_note(
             user=user,
             category=category,
-            category_name=category_name,
+            category_name=category.category_name,
             title=title,
             content=content,
             tags=tags,
@@ -59,6 +47,7 @@ class NoteService:
         tags: list[str],
         starred: bool,
     ) -> Note | None:
+        """更新笔记，自动解析分类名称"""
         note = await Repository.note.get_note_by_id(note_id)
         if note is None:
             return None
@@ -79,6 +68,7 @@ class NoteService:
 
     @staticmethod
     async def delete_note(*, user: User, note_id: int) -> bool:
+        """删除笔记，确保笔记存在且属于用户"""
         note = await Repository.note.get_note_by_id(note_id)
         if note is None:
             return False
@@ -89,10 +79,12 @@ class NoteService:
 
     @staticmethod
     async def list_notes(*, user: User) -> list[Note]:
+        """列出用户的所有笔记"""
         return await Repository.note.get_notelist_by_user(user)
     
     @staticmethod
     async def get_note_by_id(*, user: User, note_id: int) -> Optional[Note]:
+        """根据笔记ID获取笔记，确保笔记存在且属于用户"""
         note = await Repository.note.get_note_by_id(note_id)
         if note is None:
             return None
@@ -102,5 +94,6 @@ class NoteService:
     
     @staticmethod
     async def update_note_starred( note: Note, starred: bool) -> bool:
+        """更新笔记的星标状态"""
         await Repository.note.update_note_starred(note=note, starred=starred)
         return True
