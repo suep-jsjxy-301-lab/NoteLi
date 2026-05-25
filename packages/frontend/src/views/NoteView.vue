@@ -10,11 +10,11 @@
       <button class="new-note-btn" @click="createNewNote">
         <span>+</span> 新建笔记
       </button>
-
+      <!--
       <button class="sharenote-btn" @click="router.push('/share')">
         <span>📡</span> 共享笔记
       </button>
-
+      -->
       <button class="ai-helper-btn" @click="openAIManage">
         <span>🤖</span> AI助手
       </button>
