@@ -7,7 +7,7 @@ from app.agents.State import ContextState, AgentState
 from .tools.time import get_current_time_tool
 from .tools.note import create_note_tool, update_note_tool, search_notes_tool, delete_note_tool
 from .tools.category import create_category_tool, update_category_tool, delete_category_tool, search_categories_tool, get_default_icon_tool
-from app.agents.middleware.prompt import get_dynamic_prompt
+from app.agents.middleware.prompt import get_dynamic_prompt, get_chat_prompt
 
 load_dotenv("../../.env")
 
@@ -38,4 +38,9 @@ agent = create_agent(
     state_schema = AgentState,
     context_schema = ContextState,
     checkpointer = checkpointer,
+)
+
+chat_agent = create_agent(
+    model = llm,
+    middleware=[get_chat_prompt]
 )

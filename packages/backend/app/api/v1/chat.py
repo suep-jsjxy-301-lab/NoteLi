@@ -46,7 +46,8 @@ async def chat(
         notes=[],
         categories=[],
         config=config,
+        output=""
         ),
     )
-    
+    print(response)
     return ok(data=response.get("output", ""), message="对话成功")

@@ -1,15 +1,18 @@
 # app/agents/router.py
-from typing_extensions import Literal
-from pydantic import BaseModel, Field
 from langchain.messages import HumanMessage
 from langgraph.graph import StateGraph, START, END
 from app.agents.State import WorkState, Taskstep
-from app.agents.base import agent
+from app.agents.base import agent,chat_agent
 from app.agents.extractor import ResponseExtractor
-class Route(BaseModel):
-    step: Literal["search", "summarize", "organize", "qa", "extract"] = Field(
-        None, description="The next step in the routing process"
-    )
+from langgraph.types import Command
+
+async def start_node(state: WorkState) :
+    response = await chat_agent.ainvoke(input={"messages":HumanMessage(state["context"])})
+    data = ResponseExtractor.extract_response(response)
+    if data == "question":
+        return Command(goto="question")
+    state["output"] = data
+    return Command(goto=END,update={"output": data})
 
 async def question_node(state: WorkState) :
     name = ["create note","update note","delete note","search notes","create category","update category","delete category","search categories","done"]
@@ -155,7 +158,7 @@ async def done_node(state: WorkState) :
     task = Taskstep(
         name="summarize work", 
         description=f"""
-    请总结一下你完成的工作,并用一句话概括这个工作的结果,回复的格式是json,包含一个summary字段,summary是对这个工作的总结:
+    请总结一下你完成的工作,并用一句话概括这个工作的结果,回复的格式是json,包含一个summary字段,summary是对这个工作的总结,尽量精简:
     用户的问题是：{state['context']},
     你完成的工作是：{state['work']}
     """)
@@ -173,6 +176,7 @@ def route_decision(state: WorkState) :
 
 router_builder = StateGraph(WorkState)
 
+router_builder.add_node("start",start_node)
 router_builder.add_node("question", question_node)
 router_builder.add_node("router", router_node)
 router_builder.add_node("problem_analysis", problem_analysis_node)
@@ -186,7 +190,7 @@ router_builder.add_node("delete_category", delete_category_node)
 router_builder.add_node("search_categories",search_categories_node)
 router_builder.add_node("done", done_node)
 
-router_builder.add_edge(START, "question")
+router_builder.add_edge(START, "start")
 router_builder.add_edge("question", "router")
 router_builder.add_conditional_edges(
     "router",
